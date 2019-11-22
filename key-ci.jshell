@@ -120,6 +120,4 @@ public class KeYCI {
 }
 var a = new KeYCI().location("simplified/Keyserver.java").proofAllContracts();
 
-
-System.exit(a?1:0);
-/exit
+/exit a?1:0
