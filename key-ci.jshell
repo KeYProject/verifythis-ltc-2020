@@ -1,0 +1,122 @@
+import java.io.File;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import org.key_project.util.collection.ImmutableSet;
+
+import de.uka.ilkd.key.macros.scripts.ProofScriptEngine;
+import de.uka.ilkd.key.api.KeYApi;
+import de.uka.ilkd.key.control.KeYEnvironment;
+import de.uka.ilkd.key.java.abstraction.KeYJavaType;
+import de.uka.ilkd.key.logic.op.IObserverFunction;
+import de.uka.ilkd.key.proof.Proof;
+import de.uka.ilkd.key.proof.init.ProofInputException;
+import de.uka.ilkd.key.proof.io.ProblemLoaderException;
+import de.uka.ilkd.key.settings.ChoiceSettings;
+import de.uka.ilkd.key.settings.ProofSettings;
+import de.uka.ilkd.key.speclang.Contract;
+import de.uka.ilkd.key.strategy.StrategyProperties;
+import de.uka.ilkd.key.util.KeYTypeUtil;
+import de.uka.ilkd.key.util.MiscTools;
+
+public class KeYCI {
+    File location;
+    List<File> classPaths = null;
+    File bootClassPath = null;
+    List<File> includes = null;
+    List<String> excludedContracts = null;
+    
+    public KeYCI include(String inc) {
+        if(includes == null) includes = new LinkedList<>();
+        includes.add(new File(inc));
+        return this;
+    }
+
+    public KeYCI addClasspath(String cp) {
+        if(classPaths == null) classPaths = new LinkedList<>();
+        classPaths.add(new File(cp));
+        return this;
+    }
+
+
+    
+    public KeYCI bootClasspath(String cp) {
+        bootClassPath = new File(cp);
+        return this;
+    }
+
+    
+    public KeYCI location(String cp) {
+        location = new File(cp);
+        return this;
+    }
+
+
+    // public void replayProof() {
+    //     // Ensure that Taclets are parsed
+    //     if (!ProofSettings.isChoiceSettingInitialised()) {
+    //         KeYEnvironment<?> env =
+    //             KeYEnvironment.load(location, classPaths, bootClassPath, includes);
+    //         env.dispose();
+    //     }
+    //     // Set Taclet options
+    //     ChoiceSettings choiceSettings =
+    //         ProofSettings.DEFAULT_SETTINGS.getChoiceSettings();
+    //     HashMap<String, String> oldSettings = choiceSettings.getDefaultChoices();
+    //     HashMap<String, String> newSettings = new HashMap<String, String>(oldSettings);
+    //     newSettings.putAll(MiscTools.getDefaultTacletOptions());
+    //     choiceSettings.setDefaultChoices(newSettings);
+    //     // Load source code
+    //     KeYEnvironment<?> env =
+    //         KeYEnvironment.load(location, classPaths, bootClassPath, includes);
+    //     var proof = env.getLoadedProof();
+    //     // returns performed proof if a *.proof file is loaded
+    // }
+
+    boolean contractNotForbidden(Contract c) {
+        if(excludedContracts == null || excludedContracts.isEmpty()) return true;
+        //TODO
+        return false; 
+    }
+
+    String getProofScript(Contract c) {
+        return "auto;";
+    }
+    
+    public boolean proofAllContracts()
+        throws de.uka.ilkd.key.proof.io.ProblemLoaderException,
+               java.io.IOException,java.lang.InterruptedException,
+               de.uka.ilkd.key.macros.scripts.ScriptException,
+               de.uka.ilkd.key.proof.init.ProofInputException {
+        System.out.format("Proof all contracts in '%s'\n", location);
+        boolean error = false;
+        var pm =  KeYApi.loadProof(location, classPaths, bootClassPath, includes);
+        var contracts = pm.getProofContracts();
+        for(var c : contracts) {
+            if(contractNotForbidden(c)) {
+                var proofApi = pm.startProof(c);
+                //var scriptApi = proofApi.getScriptApi();
+                var engine = new ProofScriptEngine(getProofScript(c),
+                                                   new de.uka.ilkd.key.parser.Location("<memory>", 1,1));
+
+                
+                System.out.format("Start Contract: '%s'\n",
+                                  c.getDisplayName());
+                                  
+                var startTime = System.currentTimeMillis();                
+                engine.execute(
+                               (de.uka.ilkd.key.control.AbstractUserInterfaceControl)
+                               proofApi.getEnv().getUi(), proofApi.getProof());
+                var endTime = System.currentTimeMillis();
+
+                System.out.format("Contract: %s %s in %d ms\n", c.getDisplayName(),
+                                  proofApi.getProof().closed(), endTime-startTime);
+            }
+        }
+        return error;
+    }
+}
+//new KeYCI().location("simplified/Keyserver.java").proofAllContracts();
+/exit

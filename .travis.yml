@@ -1,0 +1,8 @@
+jdk:
+  - openjdk11
+
+language: java
+install:
+  - ""
+script:
+  - jshell --class-path key-2.7-exe.jar -v key-ci.jshell
