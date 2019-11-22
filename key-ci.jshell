@@ -114,9 +114,12 @@ public class KeYCI {
                 System.out.format("Contract: %s %s in %d ms\n", c.getDisplayName(),
                                   proofApi.getProof().closed(), endTime-startTime);
             }
-        }
+        } 
         return error;
     }
 }
-//new KeYCI().location("simplified/Keyserver.java").proofAllContracts();
+var a = new KeYCI().location("simplified/Keyserver.java").proofAllContracts();
+
+
+System.exit(a?1:0);
 /exit
