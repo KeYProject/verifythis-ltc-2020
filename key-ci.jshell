@@ -111,13 +111,17 @@ public class KeYCI {
                                proofApi.getEnv().getUi(), proofApi.getProof());
                 var endTime = System.currentTimeMillis();
 
-                System.out.format("Contract: %s %s in %d ms\n", c.getDisplayName(),
+                System.out.format("Contract: %s::%s %s in %d ms\n",
+                                  c.getTypeName(), c.getDisplayName(),
                                   proofApi.getProof().closed(), endTime-startTime);
             }
         } 
         return error;
     }
 }
+
 var a = new KeYCI().location("simplified/Keyserver.java").proofAllContracts();
+var a = new KeYCI().location("mapversion/KIMapImpl.java").proofAllContracts();
+
 
 /exit a?1:0
