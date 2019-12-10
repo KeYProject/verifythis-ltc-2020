@@ -1,4 +1,4 @@
-# verifythis-ltc-2020 [![Proof Status](https://travis-ci.org/KeYProject/verifythis-lts20.svg?branch=master)](https://travis-ci.org/KeYProject/verifythis-lts20)
+# verifythis-ltc-2020 [![Proof Status](https://travis-ci.org/KeYProject/verifythis-ltc-2020.svg?branch=master)](https://travis-ci.org/KeYProject/verifythis-ltc-2020)
 
 
 This repository gathers the effort of the [KeY team](https://key-project.org)
