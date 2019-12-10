@@ -11,6 +11,7 @@ Project group:
 * Alexander Weigl (@wadoon)
 
 
+**Note:** The distributed `key-2.7-exe.jar` is licensed under GPLv2+. The license of the remaining Java sources are not determined yet.
 
 ## Verified Software
 
@@ -26,5 +27,8 @@ Server*
 
 The next version builds upon the generalization of the previous map structure.
 It is currently work in progress.
+
+* KIMap (*K*ey *I*nteger Map) is an interface representing a map of `Int -> Int`. This functionality is bound to the behaviour of the map data type in KeY by JML specification.
+* KIMapImpl is a simple implementation based upon two int arrays, one for the key, the other the values.
 
 
