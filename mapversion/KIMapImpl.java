@@ -80,6 +80,18 @@ public class KIMapImpl implements KIMap  {
         }
         return -1;
     }   
+
+
+    /*@
+      public normal_behavior 
+      ensures \result == (\forall int i; 0 <= i && i < keys.length; keys[i] != id);
+      assignable \strictly_nothing;
+      @*/
+    public boolean contains(int key) {
+        int pos = posOfId(key);
+        return pos >= 0;
+    }
+
     
     /*@ public normal_behaviour
       @  requires (\exists int i; 0 <= i && i < count; keys[i] == id);
@@ -125,7 +137,11 @@ public class KIMapImpl implements KIMap  {
     }
 
     public void put(int key, int value) {
-        add(key, value);
+        try{
+            add(key, value);
+        } catch(Exception e) {
+
+        }
     }
     
 
