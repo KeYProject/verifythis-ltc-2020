@@ -4,7 +4,6 @@ public interface KIMap  {
     //@ accessible m : footprint;
     //@ accessible \inv : footprint;
 
-
     /*@
       public normal_behavior 
       ensures \result == \dl_inDomain(m, key);
@@ -35,7 +34,7 @@ public interface KIMap  {
       public normal_behavior 
       ensures !\dl_inDomain(m, key);
       ensures m == \dl_mapRemove(\old(m), key);
-      assignable \strictly_nothing;
+      assignable footprint;
       @*/
     public void del(int key);
 

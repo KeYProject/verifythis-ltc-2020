@@ -7,7 +7,6 @@ public class KIMapImpl implements KIMap  {
     //@ invariant keys != values;
     //@ invariant 0 <= count && count < keys.length;
     //@ invariant (\forall int i,j ; 0 <= i && i < j && j < count; keys[i] != keys[j]);
-
     
     //@ private instance ghost \locset footprint;
     
@@ -43,7 +42,7 @@ public class KIMapImpl implements KIMap  {
         int[] v = new int[newSize];
         /*@ loop_invariant
           (\forall int j; 0 <= j && j < i; k[j] == keys[j] && v[j] == values[j])
-          && 0 <= i && i <= keys.length
+          && 0 <= i && i <= values.length
           && k != null && v != null
           && keys != null && values != null
           && k.length == newSize
@@ -55,7 +54,7 @@ public class KIMapImpl implements KIMap  {
             k[i] = keys[i];
             v[i] = values[i];
         }
-        values = v;
+        values = k;
         keys = v;
     }
           
@@ -85,7 +84,7 @@ public class KIMapImpl implements KIMap  {
     /*@
       public normal_behavior 
       ensures \result == 
-                (\exists int i; 0 <= i && i < keys.length; 
+                (\exists int i; 0 <= i && i < count; 
                 keys[i] == key);
 
       assignable \strictly_nothing;
