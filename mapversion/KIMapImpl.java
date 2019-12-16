@@ -17,7 +17,7 @@ public class KIMapImpl implements KIMap  {
       requires i >= 0 && i <= count; 
       ensures (\forall int j;  i <= j && j < count;
       \dl_mapGet(\result, keys[j]) == values[j]);
-
+      assignable footprint;
       private model \map compute(int i) {
       return i == count ? \dl_mapEmpty
                         : \dl_mapUpdate(compute(i+1), 
@@ -84,7 +84,10 @@ public class KIMapImpl implements KIMap  {
 
     /*@
       public normal_behavior 
-      ensures \result == (\forall int i; 0 <= i && i < keys.length; keys[i] != key);
+      ensures \result == 
+                (\exists int i; 0 <= i && i < keys.length; 
+                keys[i] == key);
+
       assignable \strictly_nothing;
       @*/
     public boolean contains(int key) {
