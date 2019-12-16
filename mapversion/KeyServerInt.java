@@ -35,11 +35,11 @@ public class KeyServerInt {
 
     /*@ public normal_behavior
       @  requires true;
-      @  ensures true;
+      @  ensures 1000000 <= \result && result <= 9999999;
       @  assignable \strictly_nothing;
       @*/
-    private int newTokenNumber() {
-        return (int) Math.random()*1000000/1000000;
+    private static /*@pure*/ int newTokenNumber() {
+        return (int) 0;//Math.random()*1000000/1000000;
     }
 
     //TODO weigl: How to handle overwritings of entry? Which method should throw

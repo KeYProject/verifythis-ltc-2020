@@ -25,7 +25,7 @@ public class KIMapImpl implements KIMap  {
 
      */
 
-    //@ accessible m : footprin;tg
+    //@ accessible m : footprint;
     //@ accessible \inv : footprint;
 
 
@@ -84,7 +84,7 @@ public class KIMapImpl implements KIMap  {
 
     /*@
       public normal_behavior 
-      ensures \result == (\forall int i; 0 <= i && i < keys.length; keys[i] != id);
+      ensures \result == (\forall int i; 0 <= i && i < keys.length; keys[i] != key);
       assignable \strictly_nothing;
       @*/
     public boolean contains(int key) {
