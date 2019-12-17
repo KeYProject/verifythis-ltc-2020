@@ -7,6 +7,7 @@ for the [VerifyThis Collaborative Long-Term Challenge](https://verifythis.github
 
 Project group: 
 
+* Stijn de Gouw
 * Mattias Ulbrich (@matulbrich)
 * Alexander Weigl (@wadoon)
 
@@ -26,9 +27,17 @@ Server*
 ### Map version
 
 The next version builds upon the generalization of the previous map structure.
-It is currently work in progress.
+It is currently work in progress. This is a two-step process. The first step is
+a provable version using maps of `int` to `int`. This avoids working with the
+heap. 
 
-* KIMap (*K*ey *I*nteger Map) is an interface representing a map of `Int -> Int`. This functionality is bound to the behaviour of the map data type in KeY by JML specification.
-* KIMapImpl is a simple implementation based upon two int arrays, one for the key, the other the values.
+* KIMap (*K*ey *I*nteger Map) is an interface representing a map of `Int ->
+  Int`. This functionality is bound to the behaviour of the map data type in KeY
+  by JML specification.
+* KIMapImpl is a simple implementation based upon two int arrays, one for the
+  key, the other the values.
+* `KeyServerInt` is a version of the backend of the verifying key server using
+  integers as e-mail addresses and keys.
 
-
+The second step is to use Strings. This results into `KSMap` and `KSMapImpl` and
+also the `KeyServerString`.
