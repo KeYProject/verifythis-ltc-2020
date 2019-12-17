@@ -121,7 +121,7 @@ public class KeYCI {
 }
 
 var a = new KeYCI().location("simplified/Keyserver.java").proofAllContracts();
-var a = new KeYCI().location("mapversion/KIMapImpl.java").proofAllContracts();
+var a = new KeYCI().location("imap/KIMapImpl.java").proofAllContracts();
 
 
 /exit a?1:0
