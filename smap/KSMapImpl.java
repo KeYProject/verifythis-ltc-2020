@@ -1,12 +1,13 @@
-public class KIMapImpl implements KIMap  {
+public class KSMapImpl implements KSMap  {
     private int count = 0;
-    private int[] keys = new int[1024],
-        values = new int[1024];
+    private String[] keys = new String[64],
+                   values = new String[64];
     
     //@ invariant keys.length == values.length;
     //@ invariant keys != values;
     //@ invariant 0 <= count && count < keys.length;
-    //@ invariant (\forall int i,j ; 0 <= i && i < j && j < count; keys[i] != keys[j]);
+    //@ invariant (\forall int i; 0 <= i && i < count; keys[i] != null);
+    //@ invariant (\forall int i,j ; 0 <= i && i < j && j < count; !keys[i].equals(keys[j]));
     
     //@ private instance ghost \locset footprint;
     
@@ -16,7 +17,7 @@ public class KIMapImpl implements KIMap  {
       requires i >= 0 && i <= count; 
       ensures (\forall int j;  i <= j && j < count;
       \dl_mapGet(\result, keys[j]) == values[j]);
-      assignable footprint;
+      
       private model \map compute(int i) {
       return i == count ? \dl_mapEmpty
                         : \dl_mapUpdate(compute(i+1), 
@@ -38,10 +39,11 @@ public class KIMapImpl implements KIMap  {
       assignable keys, values;
      */
     public void resize(int newSize) {
-        int[] k = new int[newSize];
-        int[] v = new int[newSize];
+        String[] k = new String[newSize];
+        String[] v = new String[newSize];
         /*@ loop_invariant
-          (\forall int j; 0 <= j && j < i; k[j] == keys[j] && v[j] == values[j])
+          (\forall int j; 0 <= j && j < i; 
+                   k[j] == keys[j] && v[j] == values[j])
           && 0 <= i && i <= values.length
           && k != null && v != null
           && keys != null && values != null
@@ -61,19 +63,20 @@ public class KIMapImpl implements KIMap  {
     /*@ normal_behaviour 
       @  requires true;
       @  ensures \result >= -1;
-      @  ensures \result < 0 ==> (\forall int i; 0 <= i && i < count; keys[i] != id);
-      @  ensures \result >= 0 ==> (keys[\result] == id && \result < count);
+      @  ensures \result < 0 ==> (\forall int i; 0 <= i && i < count;
+                                  !id.equals(keys[i]));
+      @  ensures \result >= 0 ==> (keys[\result].equals(id) && \result < count);
       @  assignable \strictly_nothing; 
       @*/    
-    private int posOfId(int id) {
-        /*@ loop_invariant (\forall int k; 0 <= k && k < i; keys[k] != id);
+    private int posOfId(String id) {
+        /*@ loop_invariant (\forall int k; 0 <= k && k < i; !id.equals(keys[k]));
           @ loop_invariant 0 <= i && i <= count;
           @ 
           @ decreases keys.length - i; 
           @ assignable \strictly_nothing;
           @*/
         for(int i = 0; i < count;  i++) {
-            if(keys[i] == id) {
+            if(keys[i].equals(id)) {
                 return i;
             }            
         }
@@ -85,31 +88,32 @@ public class KIMapImpl implements KIMap  {
       public normal_behavior 
       ensures \result == 
                 (\exists int i; 0 <= i && i < count; 
-                keys[i] == key);
-
+                                   key.equals(keys[i]));
       assignable \strictly_nothing;
       @*/
-    public boolean contains(int key) {
+    public boolean contains(String key) {
         int pos = posOfId(key);
         return pos >= 0;
     }
 
     
     /*@ public normal_behaviour
-      @  requires (\exists int i; 0 <= i && i < count; keys[i] == id);
-      @  ensures (\exists int i; 0 <= i && i < count; \result == values[i] && keys[i] == id);
+      @  requires (\exists int i; 0 <= i && i < count; id.equals(keys[i]));
+      @  ensures (\exists int i; 0 <= i && i < count; 
+              \result.equals(values[i]) && keys[i].equals(id));
       @  assignable \strictly_nothing;
       @ also 
       @  public exceptional_behavior       
-      @  requires (\forall int i; 0 <= i && i < keys.length; keys[i] != id); 
+      @  requires (\forall int i; 0 <= i && i < keys.length; 
+                                              !keys[i].equals(id)); 
       @  signals (Exception e) true;
       @*/
-    public int get(int id) throws Exception {
+    public String get(String id) {
         int pos = posOfId(id);
         if(pos >= 0) 
             return values[pos];
-        else 
-            throw new Exception();       
+        else
+            return null;
     }
 
   
@@ -125,7 +129,7 @@ public class KIMapImpl implements KIMap  {
       @           && (values[i] == (i == \result ? pkey : \old(values[i]))));
       @  assignable keys[*], values[*], count;
       @*/
-    public int add(int id, int pkey) throws Exception {
+    public int add(String id, String pkey) {
         int pos = posOfId(id);
         
         if(pos < 0) {
@@ -138,29 +142,27 @@ public class KIMapImpl implements KIMap  {
         return pos;
     }
 
-    public void put(int key, int value) {
-        try{
-            add(key, value);
-        } catch(Exception e) {
-
-        }
+    public void put(String key, String value) {
+        add(key, value);
     }
     
 
     /*@ public normal_behaviour
-      @  requires (\exists int i; 0 <= i && i < count; keys[i] == id);
+      @  requires (\exists int i; 0 <= i && i < count; keys[i].equals(id));
       @  ensures count == \old(count) - 1;
-      @  ensures !(\exists int i; 0 <= i && i < count; keys[i] == id);
+      @  ensures !(\exists int i; 0 <= i && i < count; keys[i].equals(id));
       @  ensures (\forall int e; (\forall int k; e != id;
-      @                 \old((\exists int i; 0 <= i && i < count; keys[i] == e && values[i] == k))
-      @            <==> (\exists int i; 0 <= i && i < count; keys[i] == e && values[i] == k)));
+      @                 \old((\exists int i; 0 <= i && i < count; keys[i].equals(e) 
+                                  && values[i].equals(k)))
+      @            <==> (\exists int i; 0 <= i && i < count; 
+                                     keys[i].equals(e) && values[i].equals(k))));
       @  assignable keys[*], values[*], count;
       @ also
       @ public normal_behaviour
-      @  requires !(\exists int i; 0 <= i && i < count; keys[i] == id);
+      @  requires !(\exists int i; 0 <= i && i < count; keys[i].equals(id));
       @  assignable \strictly_nothing;
       @*/    
-    public void del(int id) {
+    public void del(String id) {
         int pos = posOfId(id);
         if(pos >= 0) {
             count --;
