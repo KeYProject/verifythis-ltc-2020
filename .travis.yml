@@ -6,5 +6,6 @@ install:
   - ""
 script:
   - javac simplified/Keyserver.java
-  - javac mapversion/*.java
+  - javac imap/*.java
+  - javac smap/*.java
   - jshell --class-path key-2.7-exe.jar -v key-ci.jshell
