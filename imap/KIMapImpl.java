@@ -1,61 +1,67 @@
 public class KIMapImpl implements KIMap  {
+
     private int count = 0;
-    private int[] keys = new int[1024],
-        values = new int[1024];
-    
+
+    private int[] keys = new int[1024];
+    private int[] values = new int[1024];
+
+    //@ invariant keys.length > 0;
     //@ invariant keys.length == values.length;
     //@ invariant keys != values;
-    //@ invariant 0 <= count && count < keys.length;
-    //@ invariant (\forall int i,j ; 0 <= i && i < j && j < count; keys[i] != keys[j]);
-    
-    //@ private instance ghost \locset footprint;
+    //@ invariant 0 <= count && count <= keys.length;
+    //@ invariant (\forall int i,j; 0 <= i && i < j && j < count; keys[i] != keys[j]);
     
     /*@ represents m = compute(0);
 
       model_behavior 
-      requires i >= 0 && i <= count; 
-      ensures (\forall int j;  i <= j && j < count;
-      \dl_mapGet(\result, keys[j]) == values[j]);
+        requires i >= 0 && i <= count; 
+        ensures (\forall int x; 
+                      \dl_inDomain(\result, x) 
+                 <==> (\exists int j; i<=j && j<count; keys[j] == x));
+        ensures (\forall int j;  i <= j && j < count;
+                    \dl_mapGet(\result, keys[j]) == values[j]);
       
       private model \map compute(int i) {
-      return i == count ? \dl_mapEmpty
-                        : \dl_mapUpdate(compute(i+1), 
-                                        keys[i], values[i]);}
+        return i == count ? \dl_mapEmpty
+                          : \dl_mapUpdate(compute(i+1), 
+                                          keys[i], values[i]);}
 
      */
 
-    //@ accessible m : footprint;
-    //@ accessible \inv : footprint;
-
+    //@ invariant \subset(this.*, footprint);
+    //@ invariant \subset(keys[*], footprint);
+    //@ invariant \subset(values[*], footprint);
 
     /*@ normal_behavior 
-      requires newSize >= keys.length;
-      requires newSize >= 0;
-      ensures  keys.length == newSize;
-      ensures  values.length == newSize;
-      ensures  (\forall int i; 0 <= i && i < \old(values.length); 
-      keys[i] == \old(keys[i]) && values[i] == \old(values[i]));
-      assignable keys, values;
+      @  requires newSize >= keys.length;
+      @  requires newSize >= 0;
+      @  ensures  keys.length == newSize;
+      @  ensures  values.length == newSize;
+      @  ensures  (\forall int i; 0 <= i && i < \old(values.length); 
+      @             keys[i] == \old(keys[i]) && values[i] == \old(values[i]));
+      @  assignable values, keys;
      */
-    public void resize(int newSize) {
+    private void resize(int newSize) {
         int[] k = new int[newSize];
         int[] v = new int[newSize];
         /*@ loop_invariant
           (\forall int j; 0 <= j && j < i; k[j] == keys[j] && v[j] == values[j])
-          && 0 <= i && i <= values.length
-          && k != null && v != null
-          && keys != null && values != null
-          && k.length == newSize
-          && v.length == newSize;
-        decreases values.length - i;
-        assignable k[*], v[*]; 
-        */
+            && 0 <= i && i <= values.length
+            && k != null && v != null
+            && keys != null && values != null
+            && k.length == newSize
+            && v.length == newSize;
+          @ decreases values.length - i;
+          @ assignable k[*], v[*]; 
+          @*/
         for(int i = 0; i < values.length; i++) {
             k[i] = keys[i];
             v[i] = values[i];
         }
         values = k;
         keys = v;
+
+        //@ set footprint = \set_union(\all_fields(this), \set_union(\all_fields(values), \all_fields(keys)));
     }
           
     /*@ normal_behaviour 
@@ -82,12 +88,9 @@ public class KIMapImpl implements KIMap  {
 
 
     /*@
-      public normal_behavior 
-      ensures \result == 
-                (\exists int i; 0 <= i && i < count; 
-                keys[i] == key);
-
-      assignable \strictly_nothing;
+      @ public normal_behavior 
+      @  ensures \result == (\exists int i; 0 <= i && i < count; keys[i] == key);
+      @  assignable \strictly_nothing;
       @*/
     public boolean contains(int key) {
         int pos = posOfId(key);
@@ -99,22 +102,23 @@ public class KIMapImpl implements KIMap  {
       @  requires (\exists int i; 0 <= i && i < count; keys[i] == id);
       @  ensures (\exists int i; 0 <= i && i < count; \result == values[i] && keys[i] == id);
       @  assignable \strictly_nothing;
-      @ also 
-      @  public exceptional_behavior       
+      @
+      @ also public exceptional_behavior       
       @  requires (\forall int i; 0 <= i && i < keys.length; keys[i] != id); 
-      @  signals (Exception e) true;
+      @  signals (IllegalArgumentException e) true;
+      @  assignable \strictly_nothing;
       @*/
-    public int get(int id) throws Exception {
+    public int get(int id) {
         int pos = posOfId(id);
         if(pos >= 0) 
             return values[pos];
         else 
-            throw new Exception();       
+            throw new IllegalArgumentException();       
     }
 
   
     /*@ public normal_behaviour
-      @  requires count < keys.length - 1;
+      @  requires count <= keys.length - 1;
       @  ensures 0 <= \result;
       @  ensures count == \old(count) && \result < count
       @      ||  count == \old(count) + 1 && \result == count - 1;
@@ -125,7 +129,7 @@ public class KIMapImpl implements KIMap  {
       @           && (values[i] == (i == \result ? pkey : \old(values[i]))));
       @  assignable keys[*], values[*], count;
       @*/
-    public int add(int id, int pkey) throws Exception {
+    public int add(int id, int pkey) {
         int pos = posOfId(id);
         
         if(pos < 0) {
@@ -139,11 +143,10 @@ public class KIMapImpl implements KIMap  {
     }
 
     public void put(int key, int value) {
-        try{
-            add(key, value);
-        } catch(Exception e) {
-
+        if(count == keys.length) {
+            resize(keys.length*2);
         }
+        add(key, value);
     }
     
 
