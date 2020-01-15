@@ -5,5 +5,5 @@ public class Math {
       @ ensures 0 <= \result && \result < range;
       @ assignable \strictly_nothing;
      */
-    public static final int random(int range);
+    public native static final int random(int range);
 }
