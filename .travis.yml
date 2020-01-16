@@ -8,4 +8,7 @@ script:
   - javac simplified/Keyserver.java
   - javac imap/*.java
   - javac smap/*.java
-  - jshell --class-path key-2.7-exe.jar -v key-ci.jshell
+    #  - jshell --class-path key-2.7-exe.jar -v key-ci.jshell
+  - java -jar key-2.7-citool.jar simplified/Keyserver.java
+  - java -jar key-2.7-citool.jar imap/project.key
+
