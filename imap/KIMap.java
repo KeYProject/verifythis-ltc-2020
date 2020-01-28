@@ -1,5 +1,5 @@
 public interface KIMap  {
-    //@ private instance ghost \locset footprint;
+    //@ public instance ghost \locset footprint;
     
     /*@ public instance model \map m; */
 

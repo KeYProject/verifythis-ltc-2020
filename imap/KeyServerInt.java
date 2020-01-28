@@ -7,22 +7,27 @@
  * @version 1, 2019-12-10
  */
 public class KeyServerInt {
+    //@ invariant storedKeys.<inv>;
     private final KIMap storedKeys = new KIMapImpl();
-    
+
+    //@ invariant unconfirmedAdditionsEmail.<inv>;
     private final KIMap unconfirmedAdditionsEmail = new KIMapImpl();
+    //@ invariant unconfirmedAdditionsKey.<inv>;
     private final KIMap unconfirmedAdditionsKey = new KIMapImpl();
 
+    //@ invariant unconfirmedDeletionsEmail.<inv>;
     private final KIMap unconfirmedDeletionsEmail = new KIMapImpl();
+    //@ invariant unconfirmedDeletionsKey.<inv>;
     private final KIMap unconfirmedDeletionsKey = new KIMapImpl();
     
     
     /*@ public normal_behaviour
-      @  requires true;
-      @  ensures true;
+      @  requires storedKeys.contains(id) == true;
+      @  ensures \result == storedKeys.get(id);
       @  assignable \strictly_nothing;
       @ also 
       @  public exceptional_behavior       
-      @  requires true;
+      @  requires storedKeys.contains(id) != true;
       @  signals (Exception e) true;
       @*/
     public int get(int id) throws Exception {
@@ -46,14 +51,26 @@ public class KeyServerInt {
     //            an error or should we silently override?
   
     /*@ public normal_behavior
-      @  requires true;
-      @  ensures true;
-      @  assignable \strictly_nothing;
+         requires \disjoint(this.*, unconfirmedAdditionsKey.footprint, 
+                            storedKeys.footprint, unconfirmedDeletionsKey.footprint, 
+                            unconfirmedDeletionsEmail.footprint, unconfirmedAdditionsEmail.footprint);
+
+         //ensures 
+         // \old(this.get(id)) == this.get(id);
+         ensures 
+           unconfirmedAdditionsEmail.get(\result) == id;
+         ensures 
+           unconfirmedAdditionsKey.get(\result) == pkey;
+         ensures 
+           unconfirmedDeletionsEmail.get(\result) == id;
+         ensures 
+           unconfirmedDeletionsKey.get(\result) == pkey;
+         assignable \strictly_nothing;
       @*/
     public int add(int id, int pkey) throws Exception {
         int tokenNumber = newTokenNumber();
         unconfirmedAdditionsEmail.put(tokenNumber, id);
-        unconfirmedAdditionsEmail.put(tokenNumber, pkey);
+        unconfirmedAdditionsKey.put(tokenNumber, pkey);
         return tokenNumber;
     }
     
