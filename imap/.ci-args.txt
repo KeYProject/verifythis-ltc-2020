@@ -1,0 +1,4 @@
+--proof-path . 
+--forbid-contact 'Random[Random::nextInt()].JML normal_behavior operation contract.0' 
+--forbid-contact 'KeYInternal[KeYInternal::UNFINISHED_PROOF()].JML normal_behavior operation contract.0' 
+project.key

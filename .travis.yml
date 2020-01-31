@@ -3,12 +3,11 @@ jdk:
 
 language: java
 install:
-  - ""
+  - wget -O ci-tool.jar https://key-project.org/ci-tool
 script:
   - javac simplified/Keyserver.java
   - javac -sourcepath imap_classpath imap/*.java
   - javac smap/*.java
-    #  - jshell --class-path key-2.7-exe.jar -v key-ci.jshell
-  - java -jar key-2.7-citool.jar simplified/Keyserver.java
-  - cd imap ; java -jar ../key-2.7-citool.jar --proof-path . --forbid-contact 'Random[Random::nextInt()].JML normal_behavior operation contract.0' --forbid-contact 'KeYInternal[KeYInternal::UNFINISHED_PROOF()].JML normal_behavior operation contract.0' project.key
+  - java -jar ci-tool.jar simplified/Keyserver.java
+  - cd imap ; java -jar ../ci-tool.jar @.ci-args.txt 
 
