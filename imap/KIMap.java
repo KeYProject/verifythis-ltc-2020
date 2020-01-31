@@ -20,7 +20,7 @@ public interface KIMap  {
       @  ensures \dl_mapGet(m, key) == \result;
       @  assignable \strictly_nothing;
       @*/
-    public int get(int key) throws Exception;
+    public int get(int key);
 
     /*@
       @ public normal_behavior 

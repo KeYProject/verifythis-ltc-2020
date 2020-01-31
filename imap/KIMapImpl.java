@@ -25,6 +25,10 @@ public class KIMapImpl implements KIMap  {
 
     /*@ public normal_behaviour
       @  ensures m == \dl_mapEmpty();
+      @  ensures footprint ==  \set_union(
+      @        \all_fields(this), \set_union(
+      @        \all_fields(values), \all_fields(keys)));
+      @  ensures \fresh(footprint);
       @  assignable \nothing;
       @*/
     public KIMapImpl() {
