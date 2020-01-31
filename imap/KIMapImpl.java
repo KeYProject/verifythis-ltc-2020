@@ -69,6 +69,7 @@ public class KIMapImpl implements KIMap  {
       @  ensures  values.length == newSize;
       @  ensures  (\forall int i; 0 <= i && i < count;
       @             keys[i] == \old(keys[i]) && values[i] == \old(values[i]));
+      @  ensures \fresh(keys) && \fresh(values);
       @  assignable values, keys, \singleton(footprint);
      */
     private void resize(int newSize) {
@@ -167,20 +168,6 @@ public class KIMapImpl implements KIMap  {
         add(key, value);
     }
     
-
-    /*@ public normal_behaviour
-      @  requires (\exists int i; 0 <= i && i < count; keys[i] == id);
-      @  ensures count == \old(count) - 1;
-      @  ensures !(\exists int i; 0 <= i && i < count; keys[i] == id);
-      @  ensures (\forall int e; (\forall int k; e != id;
-      @                 \old((\exists int i; 0 <= i && i < count; keys[i] == e && values[i] == k))
-      @            <==> (\exists int i; 0 <= i && i < count; keys[i] == e && values[i] == k)));
-      @  assignable keys[*], values[*], count;
-      @ also
-      @ public normal_behaviour
-      @  requires !(\exists int i; 0 <= i && i < count; keys[i] == id);
-      @  assignable \strictly_nothing;
-      @*/    
     public void del(int id) {
         int pos = posOfId(id);
         if(pos >= 0) {
@@ -189,6 +176,9 @@ public class KIMapImpl implements KIMap  {
                 keys[pos] = keys[count];
                 values[pos] = values[count];
             }
-        }
+            
+            //@ set m = \dl_mapRemove(m, id);
+            {}
+        }        
     }
 }
