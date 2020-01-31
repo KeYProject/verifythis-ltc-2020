@@ -10,5 +10,5 @@ script:
   - javac smap/*.java
     #  - jshell --class-path key-2.7-exe.jar -v key-ci.jshell
   - java -jar key-2.7-citool.jar simplified/Keyserver.java
-  - java -jar key-2.7-citool.jar --proof-path imap imap/project.key
+  - cd imap ; java -jar ../key-2.7-citool.jar --proof-path . project.key
 
