@@ -1,65 +1,82 @@
 public class KIMapImpl implements KIMap  {
 
-    private int count = 0;
+    private int count;
 
-    private int[] keys = new int[1024];
-    private int[] values = new int[1024];
+    private int[] keys;
+    private int[] values;
 
     //@ invariant keys.length > 0;
     //@ invariant keys.length == values.length;
     //@ invariant keys != values;
     //@ invariant 0 <= count && count <= keys.length;
     //@ invariant (\forall int i,j; 0 <= i && i < j && j < count; keys[i] != keys[j]);
+
+    /*@ invariant (\forall int x; 
+      @                \dl_inDomain(m, x) 
+      @           <==> (\exists int j; 0<=j && j<count; keys[j] == x));
+      @ invariant (\forall int j;  0 <= j && j < count;
+      @             \dl_mapGet(m, keys[j]) == values[j]);
+      @*/
     
-    /*@ represents m = compute(0);
+    /*@ invariant footprint == \set_union(
+      @    \all_fields(this), \set_union(
+      @    \all_fields(values), \all_fields(keys)));
+      @*/
 
-      model_behavior 
-        requires i >= 0 && i <= count; 
-        ensures (\forall int x; 
-                      \dl_inDomain(\result, x) 
-                 <==> (\exists int j; i<=j && j<count; keys[j] == x));
-        ensures (\forall int j;  i <= j && j < count;
-                    \dl_mapGet(\result, keys[j]) == values[j]);
-      
-      private model \map compute(int i) {
-        return i == count ? \dl_mapEmpty
-                          : \dl_mapUpdate(compute(i+1), 
-                                          keys[i], values[i]);}
+    /*@ public normal_behaviour
+      @  ensures m == \dl_mapEmpty();
+      @  assignable \nothing;
+      @*/
+    public KIMapImpl() {
+        this.count = 0;
+        this.keys = new int[1024];
+        this.values = new int[1024];
+        //@ set m = \dl_mapEmpty();
+        /*@ set footprint = \set_union(
+              \all_fields(this), \set_union(
+              \all_fields(values), \all_fields(keys)));
+          */
+          {}
+    }
 
-     */
-
-    //@ invariant \subset(this.*, footprint);
-    //@ invariant \subset(keys[*], footprint);
-    //@ invariant \subset(values[*], footprint);
+    /*@ normal_behavior
+      @  requires newSize >= array.length;
+      @  requires 0 <= count && count <= array.length;
+      @  ensures \fresh(result);
+      @  ensures (\forall int i; 0 <= i && i < count; 
+      @              \result[i] == array[i]);
+      @  ensures \result.length == newSize;
+      @  assignable \nothing;
+      @  helper
+      @*/
+    private int[] arrayClone(int[] array, int newSize) {
+        int[] newArray = new int[newSize];
+        /*@ loop_invariant 0 <= i && i <= count;
+          @ loop_invariant (\forall int j; 0 <= j && j < i;
+          @   newArray[j] == array[j]);
+          @ assignable newArray[*];
+          @ decreases array.length - i;
+          @*/
+        for(int i = 0; i < count; i++) {
+            newArray[i] = array[i];
+        }
+        return newArray;
+    }
 
     /*@ normal_behavior 
       @  requires newSize >= keys.length;
-      @  requires newSize >= 0;
       @  ensures  keys.length == newSize;
       @  ensures  values.length == newSize;
-      @  ensures  (\forall int i; 0 <= i && i < \old(values.length); 
+      @  ensures  (\forall int i; 0 <= i && i < count;
       @             keys[i] == \old(keys[i]) && values[i] == \old(values[i]));
-      @  assignable values, keys;
+      @  assignable values, keys, \singleton(footprint);
      */
     private void resize(int newSize) {
-        int[] k = new int[newSize];
-        int[] v = new int[newSize];
-        /*@ loop_invariant
-          (\forall int j; 0 <= j && j < i; k[j] == keys[j] && v[j] == values[j])
-            && 0 <= i && i <= values.length
-            && k != null && v != null
-            && keys != null && values != null
-            && k.length == newSize
-            && v.length == newSize;
-          @ decreases values.length - i;
-          @ assignable k[*], v[*]; 
-          @*/
-        for(int i = 0; i < values.length; i++) {
-            k[i] = keys[i];
-            v[i] = values[i];
-        }
-        values = k;
-        keys = v;
+        int[] newkeys = arrayClone(keys, newSize);
+        int[] newvalues = arrayClone(values, newSize);
+
+        this.keys = newkeys;
+        this.values = newvalues;
 
         //@ set footprint = \set_union(\all_fields(this), \set_union(\all_fields(values), \all_fields(keys)));
     }
@@ -104,9 +121,9 @@ public class KIMapImpl implements KIMap  {
       @  assignable \strictly_nothing;
       @
       @ also public exceptional_behavior       
-      @  requires (\forall int i; 0 <= i && i < keys.length; keys[i] != id); 
+      @  requires (\forall int i; 0 <= i && i < count; keys[i] != id); 
       @  signals (IllegalArgumentException e) true;
-      @  assignable \strictly_nothing;
+      @  assignable \nothing;
       @*/
     public int get(int id) {
         int pos = posOfId(id);
@@ -124,10 +141,8 @@ public class KIMapImpl implements KIMap  {
       @      ||  count == \old(count) + 1 && \result == count - 1;
       @  ensures keys[\result] == id && values[\result] == pkey;
       @  // preservation of the remaining entries
-      @  ensures (\forall int i; 0<=i && i<count;
-      @              (keys[i] == (i == \result ? id : \old(keys[i])))
-      @           && (values[i] == (i == \result ? pkey : \old(values[i]))));
-      @  assignable keys[*], values[*], count;
+      @  ensures m == \dl_mapUpdate(\old(m), id, pkey);
+      @  assignable keys[*], values[*], count, m;
       @*/
     public int add(int id, int pkey) {
         int pos = posOfId(id);
@@ -139,6 +154,9 @@ public class KIMapImpl implements KIMap  {
                 
         keys[pos] = id;
         values[pos] = pkey;
+
+        //@ set m = \dl_mapUpdate(m, id, pkey);
+        
         return pos;
     }
 
