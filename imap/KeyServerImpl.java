@@ -17,15 +17,16 @@ public class KeyServerImpl implements KeyServer {
     //@ invariant unconfirmedAdditionsKey.<inv>;
     private final KIMap unconfirmedAdditionsKey = new KIMapImpl();
 
-    //@ invariant unconfirmedDeletionsEmail.<inv>;
-    private final KIMap unconfirmedDeletionsEmail = new KIMapImpl();
+    // @ invariant unconfirmedDeletionsEmail.<inv>;
+    // private final KIMap unconfirmedDeletionsEmail = new KIMapImpl();
 
-    //@ invariant unconfirmedDeletionsKey.<inv>;
-    private final KIMap unconfirmedDeletionsKey = new KIMapImpl();
+    // @ invariant unconfirmedDeletionsKey.<inv>;
+    // private final KIMap unconfirmedDeletionsKey = new KIMapImpl();
 
     /*@ invariant \disjoint(storedKeys.footprint, 
-      @  unconfirmedAdditionsEmail.footprint, unconfirmedAdditionsKey.footprint,
-      @  unconfirmedDeletionsEmail.footprint, unconfirmedDeletionsKey.footprint);
+      @  unconfirmedAdditionsEmail.footprint, unconfirmedAdditionsKey.footprint
+      @  //unconfirmedDeletionsEmail.footprint, unconfirmedDeletionsKey.footprint
+      @ );
       @*/
 
     //@ invariant state == storedKeys.m;
