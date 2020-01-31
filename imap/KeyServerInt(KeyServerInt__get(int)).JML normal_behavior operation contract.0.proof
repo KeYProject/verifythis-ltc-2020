@@ -42,7 +42,7 @@
 "
 }
 
-\javaSource ".";
+\classpath "../imap_classpath"; \javaSource ".";
 
 \proofObligation "#Proof Obligation Settings
 #Tue Jan 28 13:36:14 CET 2020

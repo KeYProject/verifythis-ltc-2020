@@ -2,7 +2,7 @@
 
 \settings {
 "#Proof-Settings-Config-File
-#Fri Jan 31 11:54:01 CET 2020
+#Fri Jan 31 12:58:40 CET 2020
 [Labels]UseOriginLabels=true
 [StrategyProperty]QUERYAXIOM_OPTIONS_KEY=QUERYAXIOM_ON
 [SMTSettings]invariantForall=false
@@ -20,7 +20,7 @@
 [SMTSettings]SelectedTaclets=
 [StrategyProperty]DEP_OPTIONS_KEY=DEP_ON
 [StrategyProperty]AUTO_INDUCTION_OPTIONS_KEY=AUTO_INDUCTION_OFF
-[Strategy]MaximumNumberOfAutomaticApplications=10000
+[Strategy]MaximumNumberOfAutomaticApplications=50000
 [StrategyProperty]STOPMODE_OPTIONS_KEY=STOPMODE_DEFAULT
 [StrategyProperty]CLASS_AXIOM_OPTIONS_KEY=CLASS_AXIOM_FREE
 [SMTSettings]useConstantsForBigOrSmallIntegers=true
@@ -45,7 +45,7 @@
 \javaSource ".";
 
 \proofObligation "#Proof Obligation Settings
-#Fri Jan 31 11:54:01 CET 2020
+#Fri Jan 31 12:58:40 CET 2020
 contract=KeyServerImpl[KeyServer\\:\\:contains(int)].JML normal_behavior operation contract.0
 name=KeyServerImpl[KeyServer\\:\\:contains(int)].JML normal_behavior operation contract.0
 class=de.uka.ilkd.key.proof.init.FunctionalOperationContractPO
@@ -54,7 +54,7 @@ class=de.uka.ilkd.key.proof.init.FunctionalOperationContractPO
 \proof {
 (keyLog "0" (keyUser "mattias" ) (keyVersion "49ea85945cd6c693d72d27b4476aa0916bad8383"))
 
-(autoModeTime "298")
+(autoModeTime "185")
 
 (branch "dummy ID"
  (builtin "One Step Simplification" (formula "1") (newnames "email,self,result,exc,heapAtPre,o,f"))
@@ -75,140 +75,100 @@ class=de.uka.ilkd.key.proof.init.FunctionalOperationContractPO
 (rule "andLeft" (formula "5"))
 (rule "andLeft" (formula "5"))
 (rule "andLeft" (formula "5"))
+(rule "andLeft" (formula "6"))
+(rule "andLeft" (formula "5"))
 (rule "andLeft" (formula "7"))
 (rule "andLeft" (formula "5"))
-(rule "andLeft" (formula "8"))
 (rule "andLeft" (formula "5"))
-(rule "andLeft" (formula "9"))
 (rule "andLeft" (formula "5"))
-(rule "andLeft" (formula "10"))
-(rule "andLeft" (formula "5"))
-(rule "andLeft" (formula "11"))
-(rule "andLeft" (formula "5"))
-(rule "andLeft" (formula "12"))
 (rule "notLeft" (formula "6"))
 (rule "andLeft" (formula "5"))
-(rule "andLeft" (formula "12"))
-(rule "notLeft" (formula "6"))
-(rule "andLeft" (formula "5"))
-(rule "andLeft" (formula "12"))
-(rule "notLeft" (formula "6"))
-(rule "andLeft" (formula "5"))
-(rule "andLeft" (formula "12"))
 (rule "notLeft" (formula "5"))
 (rule "notLeft" (formula "5"))
-(rule "eqSymm" (formula "22"))
-(rule "eqSymm" (formula "21"))
-(rule "eqSymm" (formula "20"))
-(rule "disjointDefinition" (formula "19"))
-(rule "disjointDefinition" (formula "18"))
-(rule "disjointDefinition" (formula "17"))
-(rule "disjointDefinition" (formula "16"))
-(rule "disjointDefinition" (formula "15"))
-(rule "disjointDefinition" (formula "14"))
-(rule "disjointDefinition" (formula "13"))
-(rule "disjointDefinition" (formula "12"))
-(rule "disjointDefinition" (formula "11"))
+(rule "eqSymm" (formula "14"))
+(rule "eqSymm" (formula "13"))
+(rule "eqSymm" (formula "12"))
 (rule "disjointDefinition" (formula "10"))
-(rule "methodBodyExpand" (formula "29") (term "1") (newnames "heapBefore_contains,savedHeapBefore_contains"))
- (builtin "One Step Simplification" (formula "29"))
-(rule "returnUnfold" (formula "29") (term "1") (inst "#v0=x"))
-(rule "variableDeclarationAssign" (formula "29") (term "1"))
-(rule "variableDeclaration" (formula "29") (term "1") (newnames "x"))
-(rule "methodCallWithAssignmentUnfoldTarget" (formula "29") (term "1") (inst "#v0=k"))
-(rule "variableDeclaration" (formula "29") (term "1") (newnames "k"))
-(rule "assignment_read_attribute_this" (formula "29"))
- (builtin "One Step Simplification" (formula "29"))
- (builtin "Use Operation Contract" (formula "29") (newnames "heapBefore_contains_0,result_0,exc_0") (contract "KIMap[KIMap::contains(int)].JML normal_behavior operation contract.0"))
+(rule "disjointDefinition" (formula "9"))
+(rule "disjointDefinition" (formula "8"))
+(rule "methodBodyExpand" (formula "19") (term "1") (newnames "heapBefore_contains,savedHeapBefore_contains"))
+ (builtin "One Step Simplification" (formula "19"))
+(rule "returnUnfold" (formula "19") (term "1") (inst "#v0=x"))
+(rule "variableDeclarationAssign" (formula "19") (term "1"))
+(rule "variableDeclaration" (formula "19") (term "1") (newnames "x"))
+(rule "methodCallWithAssignmentUnfoldTarget" (formula "19") (term "1") (inst "#v0=k"))
+(rule "variableDeclaration" (formula "19") (term "1") (newnames "k"))
+(rule "assignment_read_attribute_this" (formula "19"))
+ (builtin "One Step Simplification" (formula "19"))
+ (builtin "Use Operation Contract" (formula "19") (newnames "heapBefore_contains_0,result_0,exc_0") (contract "KIMap[KIMap::contains(int)].JML normal_behavior operation contract.0"))
 (branch "Post (contains)"
-    (builtin "One Step Simplification" (formula "30"))
-    (builtin "One Step Simplification" (formula "23") (ifInst ""  (formula "5")))
-   (rule "andLeft" (formula "23"))
-   (rule "andLeft" (formula "24"))
-   (rule "eqSymm" (formula "24"))
-   (rule "assignment" (formula "31") (term "1"))
-    (builtin "One Step Simplification" (formula "31"))
-   (rule "applyEq" (formula "24") (term "0,0,0") (ifseqformula "20"))
-   (rule "methodCallReturn" (formula "31") (term "1"))
-   (rule "assignment" (formula "31") (term "1"))
-    (builtin "One Step Simplification" (formula "31"))
-   (rule "methodCallEmpty" (formula "31") (term "1"))
-   (rule "tryEmpty" (formula "31") (term "1"))
-   (rule "emptyModality" (formula "31") (term "1"))
-   (rule "andRight" (formula "31"))
-   (branch "Case 1"
-      (rule "andRight" (formula "31"))
-      (branch "Case 1"
-         (rule "andRight" (formula "31"))
-         (branch "Case 1"
-             (builtin "One Step Simplification" (formula "31") (ifInst ""  (formula "24")))
-            (rule "closeTrue" (formula "31"))
+    (builtin "One Step Simplification" (formula "20"))
+    (builtin "One Step Simplification" (formula "15") (ifInst ""  (formula "5")))
+   (rule "andLeft" (formula "15"))
+   (rule "andLeft" (formula "16"))
+   (rule "eqSymm" (formula "16"))
+   (rule "assignment" (formula "21") (term "1"))
+    (builtin "One Step Simplification" (formula "21"))
+   (rule "applyEq" (formula "16") (term "0,0,0") (ifseqformula "12"))
+   (rule "methodCallReturn" (formula "21") (term "1"))
+   (rule "assignment" (formula "21") (term "1"))
+    (builtin "One Step Simplification" (formula "21"))
+   (rule "methodCallEmpty" (formula "21") (term "1"))
+   (rule "tryEmpty" (formula "21") (term "1"))
+   (rule "emptyModality" (formula "21") (term "1"))
+   (rule "andRight" (formula "21"))
+   (branch
+      (rule "andRight" (formula "21"))
+      (branch
+         (rule "andRight" (formula "21"))
+         (branch
+             (builtin "One Step Simplification" (formula "21") (ifInst ""  (formula "16")))
+            (rule "closeTrue" (formula "21"))
          )
-         (branch "Case 2"
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "Class_invariant_axiom_for_KeyServerImpl" (formula "31") (ifseqformula "3"))
-            (rule "eqSymm" (formula "31") (term "1,0,0"))
-            (rule "eqSymm" (formula "31") (term "1,0"))
-            (rule "eqSymm" (formula "31") (term "1"))
-            (rule "replace_known_right" (formula "31") (term "0,0,0,0,0,0,0,0,0,0,0,0,0,0") (ifseqformula "26"))
-             (builtin "One Step Simplification" (formula "31") (ifInst ""  (formula "25")) (ifInst ""  (formula "27")) (ifInst ""  (formula "28")) (ifInst ""  (formula "29")) (ifInst ""  (formula "5")) (ifInst ""  (formula "6")) (ifInst ""  (formula "7")) (ifInst ""  (formula "8")) (ifInst ""  (formula "9")) (ifInst ""  (formula "20")) (ifInst ""  (formula "21")) (ifInst ""  (formula "22")))
-            (rule "disjointDefinition" (formula "31") (term "1,0,0,0,0"))
-            (rule "replace_known_left" (formula "31") (term "1,0,0,0,0") (ifseqformula "15"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31") (term "1,0,0,0,0,0,0"))
-            (rule "replace_known_left" (formula "31") (term "1,0,0,0,0,0,0") (ifseqformula "12"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31") (term "1,0,0,0,0,0"))
-            (rule "replace_known_left" (formula "31") (term "1,0,0,0,0,0") (ifseqformula "13"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31") (term "1,0,0,0,0,0"))
-            (rule "replace_known_left" (formula "31") (term "1,0,0,0,0,0") (ifseqformula "11"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31") (term "1"))
-            (rule "replace_known_left" (formula "31") (term "1") (ifseqformula "19"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31") (term "1,0,0"))
-            (rule "replace_known_left" (formula "31") (term "1,0,0") (ifseqformula "16"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31") (term "0,0,0"))
-            (rule "replace_known_left" (formula "31") (term "0,0,0") (ifseqformula "10"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31") (term "1"))
-            (rule "replace_known_left" (formula "31") (term "1") (ifseqformula "18"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31") (term "1"))
-            (rule "replace_known_left" (formula "31") (term "1") (ifseqformula "17"))
-             (builtin "One Step Simplification" (formula "31"))
-            (rule "disjointDefinition" (formula "31"))
-            (rule "close" (formula "31") (ifseqformula "14"))
+         (branch
+             (builtin "One Step Simplification" (formula "21"))
+            (rule "Class_invariant_axiom_for_KeyServerImpl" (formula "21") (ifseqformula "3"))
+            (rule "eqSymm" (formula "21") (term "1,0"))
+            (rule "eqSymm" (formula "21") (term "1"))
+            (rule "eqSymm" (formula "21") (term "1,0,0"))
+            (rule "replace_known_left" (formula "21") (term "1,0,0,0") (ifseqformula "11"))
+             (builtin "One Step Simplification" (formula "21") (ifInst ""  (formula "18")) (ifInst ""  (formula "17")) (ifInst ""  (formula "19")) (ifInst ""  (formula "5")) (ifInst ""  (formula "6")) (ifInst ""  (formula "7")) (ifInst ""  (formula "12")) (ifInst ""  (formula "13")) (ifInst ""  (formula "14")))
+            (rule "disjointDefinition" (formula "21") (term "1,0"))
+            (rule "replace_known_left" (formula "21") (term "1,0") (ifseqformula "9"))
+             (builtin "One Step Simplification" (formula "21"))
+            (rule "disjointDefinition" (formula "21") (term "1"))
+            (rule "replace_known_left" (formula "21") (term "1") (ifseqformula "10"))
+             (builtin "One Step Simplification" (formula "21"))
+            (rule "disjointDefinition" (formula "21"))
+            (rule "close" (formula "21") (ifseqformula "8"))
          )
       )
-      (branch "Case 2"
-          (builtin "One Step Simplification" (formula "31"))
-         (rule "closeTrue" (formula "31"))
+      (branch
+          (builtin "One Step Simplification" (formula "21"))
+         (rule "closeTrue" (formula "21"))
       )
    )
-   (branch "Case 2"
-       (builtin "One Step Simplification" (formula "31"))
-      (rule "closeTrue" (formula "31"))
+   (branch
+       (builtin "One Step Simplification" (formula "21"))
+      (rule "closeTrue" (formula "21"))
    )
 )
 (branch "Exceptional Post (contains)"
-    (builtin "One Step Simplification" (formula "23") (ifInst ""  (formula "5")))
-    (builtin "One Step Simplification" (formula "30"))
-   (rule "andLeft" (formula "23"))
-   (rule "andLeft" (formula "23"))
-   (rule "andLeft" (formula "25"))
-   (rule "notLeft" (formula "23"))
-   (rule "close" (formula "26") (ifseqformula "25"))
+    (builtin "One Step Simplification" (formula "20"))
+    (builtin "One Step Simplification" (formula "15") (ifInst ""  (formula "5")))
+   (rule "andLeft" (formula "15"))
+   (rule "andLeft" (formula "15"))
+   (rule "andLeft" (formula "17"))
+   (rule "notLeft" (formula "15"))
+   (rule "close" (formula "18") (ifseqformula "17"))
 )
 (branch "Pre (contains)"
-    (builtin "One Step Simplification" (formula "29") (ifInst ""  (formula "1")) (ifInst ""  (formula "5")))
-   (rule "closeTrue" (formula "29"))
+    (builtin "One Step Simplification" (formula "19") (ifInst ""  (formula "1")) (ifInst ""  (formula "5")))
+   (rule "closeTrue" (formula "19"))
 )
 (branch "Null reference (k = null)"
-    (builtin "One Step Simplification" (formula "29") (ifInst ""  (formula "24")))
-   (rule "closeTrue" (formula "29"))
+    (builtin "One Step Simplification" (formula "19") (ifInst ""  (formula "16")))
+   (rule "closeTrue" (formula "19"))
 )
 )
 }

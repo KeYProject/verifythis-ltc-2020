@@ -29,6 +29,8 @@ public class KeyServerImpl implements KeyServer {
       @ );
       @*/
 
+    //@ invariant \dl_isFinite(confAddEmail);
+
     //@ invariant state == storedKeys.m;
     //@ invariant confAddEmail == unconfirmedAdditionsEmail.m;
     //@ invariant confAddKey == unconfirmedAdditionsKey.m;
@@ -57,20 +59,36 @@ public class KeyServerImpl implements KeyServer {
     }
 
     public int add(int id, int pkey) {
+        KeYInternal.UNFINISHED_PROOF();
         int token = newToken();
         unconfirmedAdditionsEmail.put(token, id);
         unconfirmedAdditionsKey.put(token, pkey);
         return token;
     }
 
-    ////// That is an unplausible assumption. ... later 
     /*@ public normal_behaviour
       @  ensures !\dl_inDomain(confAddEmail, \result);
       @  assignable \strictly_nothing;
       @*/
-    private native int newToken();
+    private int newToken() {       
+        int token = Random.nextInt();
+        //@ ghost \map decrDomain = confAddEmail;
+        /*@ loop_invariant (\forall int t;
+          @    t >= token; \dl_inDomain(confAddEmail, t) ==> \dl_inDomain(decrDomain, t));
+          @ loop_invariant \dl_isFinite(decrDomain);
+          @  decreases \dl_mapSize(decrDomain);
+          @  assignable \strictly_nothing;
+          @*/
+        while(unconfirmedAdditionsEmail.contains(token)) {
+            //@ set decrDomain = \dl_mapRemove(decrDomain, token);
+            token++;
+            {}
+        }
+        return token;
+    }
     
     public void addConfirm(int tokenNumber) {
+        KeYInternal.UNFINISHED_PROOF();
         int id = unconfirmedAdditionsEmail.get(tokenNumber);
         unconfirmedAdditionsEmail.del(tokenNumber);
         int pkey = unconfirmedAdditionsKey.get(tokenNumber);
