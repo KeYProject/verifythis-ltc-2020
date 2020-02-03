@@ -4,6 +4,9 @@ public interface KIMap  {
     /*@ public instance ghost \map m; */
 
     // @ public instance invariant \dl_isIntMap(this.m);
+
+    //@ public instance invariant \subset(this.m, footprint);
+    //@ public instance invariant \subset(\singleton(this.footprint), footprint);
     
     //@ accessible \inv : footprint;
 
@@ -25,14 +28,15 @@ public interface KIMap  {
     /*@
       @ public normal_behavior 
       @  ensures m == \dl_mapUpdate(\old(m), key, value);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void put(int key, int value);
-    
 
     /*@
       @ public normal_behavior 
       @  ensures m == \dl_mapRemove(\old(m), key);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void del(int key);

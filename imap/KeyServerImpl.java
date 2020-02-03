@@ -24,8 +24,9 @@ public class KeyServerImpl implements KeyServer {
     // private final KIMap unconfirmedDeletionsKey = new KIMapImpl();
 
     /*@ invariant \disjoint(storedKeys.footprint, 
-      @  unconfirmedAdditionsEmail.footprint, unconfirmedAdditionsKey.footprint
+      @  unconfirmedAdditionsEmail.footprint, unconfirmedAdditionsKey.footprint,
       @  //unconfirmedDeletionsEmail.footprint, unconfirmedDeletionsKey.footprint
+      @  this.*
       @ );
       @*/
 
@@ -59,10 +60,30 @@ public class KeyServerImpl implements KeyServer {
     }
 
     public int add(int id, int pkey) {
-        KeYInternal.UNFINISHED_PROOF();
+        // KeYInternal.UNFINISHED_PROOF();
+        KIMap uAE = unconfirmedAdditionsEmail;
+        KIMap uAK = unconfirmedAdditionsKey;
         int token = newToken();
-        unconfirmedAdditionsEmail.put(token, id);
-        unconfirmedAdditionsKey.put(token, pkey);
+        uAE.put(token, id);
+        
+        // //@ normal_behaviour
+        // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
+        // //@ ensures uAE.m == \dl_mapUpdate(\old(confAddEmail), token, id);
+        // //@ assignable \strictly_nothing;
+        // { int block1; }
+        
+        uAK.put(token, pkey);
+
+        // //@ normal_behaviour
+        // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
+        // //@ ensures uAK.m == \dl_mapUpdate(\old(confAddKey), token, pkey);
+        // //@ assignable \strictly_nothing;
+        // { int block2; }
+        
+        //@ set confAddEmail = uAE.m;
+        //@ set confAddKey = uAK.m;
+      
+        // KeYInternal.UNFINISHED_PROOF();
         return token;
     }
 
