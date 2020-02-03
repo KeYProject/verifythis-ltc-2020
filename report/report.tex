@@ -1,0 +1,69 @@
+\documentclass{llncs}
+
+\usepackage{microtype}
+\usepackage{xspace}
+
+\newcommand{\KeY}{Ke\kern-1ptY\xspace}
+
+\title{The \KeY Approach on Hagrid
+  \\{\small VerifyThis Long-Term Challenge 2020 }}
+
+\author{ Stijn de Gouw \and Mattias Ulbrich \and Alexander Weigl }
+\institute{Open University \and Karlsruhe Institute of Technology}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+1. Motivation
+
+2. VerifyThis Challenge LTC
+
+3. Verification target 
+
+For 2020, the challenge system is the new, implementation of the PGP server
+infrastructure, called HAGRID [2]. The old implementation did not conform to
+GDPR and was known to be vulnerable against DoS attacks.
+    
+
+   % * ... the used verification approach and tools
+   %  * ... how the challenge was adapted to make verification possible
+   %    (abstractions, reimplementation, different behaviour)
+   %  * ... what has been achieved (modelled and verified properties)
+   %  * ... successes and challenges encountered in the course of the case
+   %    study.
+
+\section{Introduction of the \KeY tool}
+
+Deductive Verification of Java Programs; Supports Java 1.4 and JavaCard;
+ultimate precise tool; requires a lot of specification and effort but guarantees
+correctness;
+
+
+\section{Re-implementation of Hagrid in Java}
+
+how the challenge was adapted to make verification possible
+(abstractions, reimplementation, different behaviour)
+
+1. We need to reimplement in Java.
+
+2. Decided for a simple implementation, one class only.
+
+3. We verify two different version,
+
+a. a simplified version without the use of any complex methods
+
+b. a complex, map-based version.
+
+4. 
+
+\section{Proofed Properties}
+
+what has been achieved (modelled and verified properties)
+
+
+\section{Conclusion }
+
+.. successes and challenges encountered in the course of the case study.
+
+\end{document}
