@@ -66,19 +66,19 @@ public class KeyServerImpl implements KeyServer {
         int token = newToken();
         uAE.put(token, id);
         
-        //@ normal_behaviour
-        //@ ensures \disjoint(uAE.footprint, uAK.footprint);
-        //@ ensures uAE.m == \dl_mapUpdate(\old(confAddEmail), token, id);
-        //@ assignable \strictly_nothing;
-        { int block1; }
+        // //@ normal_behaviour
+        // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
+        // //@ ensures uAE.m == \dl_mapUpdate(\old(confAddEmail), token, id);
+        // //@ assignable \strictly_nothing;
+        // { int block1; }
         
         uAK.put(token, pkey);
 
-        //@ normal_behaviour
-        //@ ensures \disjoint(uAE.footprint, uAK.footprint);
-        //@ ensures uAK.m == \dl_mapUpdate(\old(confAddKey), token, pkey);
-        //@ assignable \strictly_nothing;
-        { int block2; }
+        // //@ normal_behaviour
+        // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
+        // //@ ensures uAK.m == \dl_mapUpdate(\old(confAddKey), token, pkey);
+        // //@ assignable \strictly_nothing;
+        // { int block2; }
         
         //@ set confAddEmail = uAE.m;
         //@ set confAddKey = uAK.m;
