@@ -8,7 +8,7 @@ public interface KeyServer {
       @ instance ghost \map confAddKey;
       @*/
 
-    /*@ instance invariant (\forall int token;
+    /*@ public instance invariant (\forall int token;
       @   \dl_inDomain(confAddEmail, token) == \dl_inDomain(confAddKey, token));
       @*/
     
@@ -42,6 +42,11 @@ public interface KeyServer {
       @  ensures confAddEmail == \dl_mapRemove(\old(confAddEmail), token);
       @  ensures confAddKey == \dl_mapRemove(\old(confAddKey), token);
       @  // assignable footprint;
+      @
+      @ also 
+      @ public normal_behavior
+      @  requires !\dl_inDomain(confAddEmail, token);
+      @  assignable \strictly_nothing;
       @*/
     public void addConfirm(int token);
     

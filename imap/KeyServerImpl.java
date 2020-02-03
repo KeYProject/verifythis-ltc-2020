@@ -108,13 +108,17 @@ public class KeyServerImpl implements KeyServer {
         return token;
     }
     
-    public void addConfirm(int tokenNumber) {
-        KeYInternal.UNFINISHED_PROOF();
-        int id = unconfirmedAdditionsEmail.get(tokenNumber);
-        unconfirmedAdditionsEmail.del(tokenNumber);
-        int pkey = unconfirmedAdditionsKey.get(tokenNumber);
-        unconfirmedAdditionsKey.del(tokenNumber);
+    public void addConfirm(int token) {
+        if(!unconfirmedAdditionsEmail.contains(token)) {
+            return;
+        }
+
+        int id = unconfirmedAdditionsEmail.get(token);
+        int pkey = unconfirmedAdditionsKey.get(token);
+        unconfirmedAdditionsEmail.del(token);
+        unconfirmedAdditionsKey.del(token);
         storedKeys.put(id, pkey);
+        //@ set state = \dl_mapUpdate(state, id, pkey);
     }    
     
 }
