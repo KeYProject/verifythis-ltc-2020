@@ -57,6 +57,27 @@ b. a complex, map-based version.
 
 4. 
 
+\paragraph{A simply email-key map}
+
+In simplified/, you find a simple implementation for a email-key map --
+verifiable in KeY. The implementation is based upon two arrays, for the key and
+the value. The number of pairs are limited as the arrays are never resized. It
+also does not support the verifying part of the Verifying Key Server
+
+\paragraph{Map version}
+
+The next version builds upon the generalization of the previous map structure.
+It is currently work in progress. This is a two-step process. The first step is
+a provable version using maps of int to int. This avoids working with the heap.
+
+KIMap (Key Integer Map) is an interface representing a map of Int -> Int. This
+functionality is bound to the behaviour of the map data type in KeY by JML
+specification. KIMapImpl is a simple implementation based upon two int arrays,
+one for the key, the other the values. KeyServerInt is a version of the backend
+of the verifying key server using integers as e-mail addresses and keys. The
+second step is to use Strings. This results into KSMap and KSMapImpl and also
+the KeyServerString.
+
 \section{Proofed Properties}
 
 what has been achieved (modelled and verified properties)
