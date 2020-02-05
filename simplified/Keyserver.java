@@ -1,20 +1,26 @@
 public class Keyserver {
-
-    private final int[] emails = new int[1024];
-    private final int[] keys = new int[1024];
+    private static int MAXUSERS = 1024;
+    private final int[] emails = new int[MAXUSERS];
+    private final int[] keys = new int[MAXUSERS];
+    private final int[] codes = new int[MAXUSERS];
+    private final int[] unconfirmedKeys = new int[MAXUSERS];
     private int count;
 
-    //@ invariant emails != null && keys != null;
-    //@ invariant emails.length == keys.length;
-    //@ invariant emails != keys;
-    //@ invariant 0 <= count && count < emails.length;
+    //ruling out aliasing between arrays
+    //@ invariant emails != keys && emails != codes && emails != unconfirmedKeys;
+    //@ invariant keys != codes && keys != unconfirmedKeys;
+    //@ invariant codes != unconfirmedKeys;
+
+    //@ invariant emails != null && keys != null && codes != null && unconfirmedKeys != null;
+    //@ invariant emails.length == MAXUSERS && keys.length == MAXUSERS && codes.length == MAXUSERS && unconfirmedKeys.length == MAXUSERS;
+    //@ invariant 0 <= count && count <= MAXUSERS;
     //@ invariant (\forall int i,j ; 0 <= i && i < j && j < count; emails[i] != emails[j]);
 
 
     /*@ normal_behaviour 
       @  requires true;
       @  ensures \result >= -1;
-      @  ensures \result < 0 ==> (\forall int i; 0 <= i && i < count; emails[i] != id);
+      @  ensures \result == -1 ==> (\forall int i; 0 <= i && i < count; emails[i] != id);
       @  ensures \result >= 0 ==> (emails[\result] == id && \result < count);
       @  assignable \strictly_nothing; 
       @*/    
@@ -52,18 +58,19 @@ public class Keyserver {
 
   
     /*@ public normal_behaviour
-      @  requires count < emails.length - 1;
+      @  requires count < MAXUSERS;
       @  ensures 0 <= \result;
       @  ensures count == \old(count) && \result < count
       @      ||  count == \old(count) + 1 && \result == count - 1;
-      @  ensures emails[\result] == id && keys[\result] == pkey;
-      @  // preservation of the remaining entries
+      @  ensures emails[\result] == id && unconfirmedKeys[\result] == pkey && codes[\result]>0;
+      @  // preservation of the other entries
       @  ensures (\forall int i; 0<=i && i<count;
       @              (emails[i] == (i == \result ? id : \old(emails[i])))
-      @           && (keys[i] == (i == \result ? pkey : \old(keys[i]))));
-      @  assignable emails[*], keys[*], count;
+      @           && (unconfirmedKeys[i] == (i == \result ? pkey : \old(unconfirmedKeys[i])))
+      @           && (i != \result ==> (codes[i] == \old(codes[i]))));
+      @  assignable emails[*], unconfirmedKeys[*], codes[*], count;
       @*/
-    public int add(int id, int pkey) throws Exception {
+    public int addRequest(int id, int pkey) throws Exception {
         int pos = posOfId(id);
         
         if(pos < 0) {
@@ -72,8 +79,69 @@ public class Keyserver {
         }
                 
         emails[pos] = id;
-        keys[pos] = pkey;
+        codes[pos] = 1; // TODO: Random positive number?
+        unconfirmedKeys[pos] = pkey;
         return pos;
+    }
+
+
+
+
+  
+    /*@ public normal_behaviour
+	  @ requires code > 0 && (\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
+      @  ensures 0 <= \result;
+      @  ensures emails[\result] == id && keys[\result] == \old(unconfirmedKeys[\result]) && codes[\result]==0;
+      @  // preservation of the other entries
+      @  ensures (\forall int i; 0<=i && i<count; (i != \result ==>
+      @              (keys[i] == \old(keys[i])) && (codes[i] == \old(codes[i]))));
+      @  assignable keys[*], codes[*];
+      @ also
+      @ public normal_behaviour
+      @  requires code <= 0 || !(\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
+	  @  ensures \result == -1;
+      @  assignable \strictly_nothing;
+      @*/
+    public int addConfirm(int id, int code) throws Exception {
+        int pos = posOfId(id);
+        
+        if(pos >= 0 && code > 0 && code == codes[pos]) {
+            // code confirmed, store key
+            keys[pos] = unconfirmedKeys[pos];
+	        codes[pos] = 0;
+	    } else {
+            pos = -1;
+		}
+
+        return pos;
+    }
+    
+    
+
+    
+    
+
+    /*@ public normal_behaviour
+      @  requires (\exists int i; 0 <= i && i < count; emails[i] == id);
+      @  ensures (\forall int i; 0 <= i && i < count; (i != \result ==>
+      @              (codes[i] == \old(codes[i]))));
+	  @  ensures codes[\result] > 0;
+      @  assignable codes[*];
+      @ also
+      @ public normal_behaviour
+      @  requires !(\exists int i; 0 <= i && i < count; emails[i] == id);
+	  @  ensures \result == -1;
+      @  assignable \strictly_nothing;
+      */    
+    public int delRequest(int id) {
+        int pos = posOfId(id);
+        if(pos >= 0) {
+            if(count > 0 && pos != count) {
+                codes[pos] = 1; // Random positive number?
+            }
+        }
+		
+		return pos;
     }
     
     
@@ -81,7 +149,7 @@ public class Keyserver {
     
 
     /*@ public normal_behaviour
-      @  requires (\exists int i; 0 <= i && i < count; emails[i] == id);
+	  @  requires code > 0 && (\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
       @  ensures count == \old(count) - 1;
       @  ensures !(\exists int i; 0 <= i && i < count; emails[i] == id);
       @  ensures (\forall int e; (\forall int k; e != id;
@@ -90,19 +158,20 @@ public class Keyserver {
       @  assignable emails[*], keys[*], count;
       @ also
       @ public normal_behaviour
-      @  requires !(\exists int i; 0 <= i && i < count; emails[i] == id);
+	  @  requires code <= 0 || !(\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
       @  assignable \strictly_nothing;
       @*/    
-    public void del(int id) {
+    public void delConfirm(int id, int code) {
 
         int pos = posOfId(id);
-        if(pos >= 0) {
+        if(pos >= 0 && code > 0 && code == codes[pos]) {
+            //code confirmed, remove key
             count --;
             if(count > 0 && pos != count) {
                 emails[pos] = emails[count];
                 keys[pos] = keys[count];
             }
         }
-    }    
+    }
     
 }
