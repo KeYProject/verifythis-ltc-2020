@@ -100,7 +100,7 @@ public class Keyserver {
       @           && (i != \result ==> (codes[i] == \old(codes[i]))));
       @  assignable emails[*], unconfirmedKeys[*], codes[*], count;
       @*/
-    public int addRequest(int id, int pkey) throws Exception {
+    public int addRequest(int id, int pkey) {
         int pos = posOfId(id);
         
         if(pos < 0) {
@@ -140,7 +140,7 @@ public class Keyserver {
 	  @  ensures \result == -1;
       @  assignable \strictly_nothing;
       @*/
-    public int addConfirm(int id, int code) throws Exception {
+    public int addConfirm(int id, int code) {
         int pos = posOfId(id);
         
         if(pos >= 0 && code > 0 && code == codes[pos]) {
