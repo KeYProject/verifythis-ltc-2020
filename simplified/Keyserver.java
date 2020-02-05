@@ -1,5 +1,9 @@
+/**
+ * Java version of the HAGRID OpenPGP server. Manages the access to public keys.
+ * 
+ */
 public class Keyserver {
-    private static int MAXUSERS = 1024;
+    private int MAXUSERS = 1024;
     private final int[] emails = new int[MAXUSERS];
     private final int[] keys = new int[MAXUSERS];
     private final int[] codes = new int[MAXUSERS];
@@ -16,7 +20,14 @@ public class Keyserver {
     //@ invariant 0 <= count && count <= MAXUSERS;
     //@ invariant (\forall int i,j ; 0 <= i && i < j && j < count; emails[i] != emails[j]);
 
-
+    /**
+     * Returns the array index where the info of the user with the specified
+     * id/email is stored.
+     *
+     * @param id
+     *            the id/email of the user
+     * @return the array index where user info is stored
+     */
     /*@ normal_behaviour 
       @  requires true;
       @  ensures \result >= -1;
@@ -38,7 +49,16 @@ public class Keyserver {
         }
         return -1;
     }   
-    
+	
+    /**
+     * Returns the key of the specified user.
+     * 
+     * @param id
+     *            the id/email of the user
+     * @return the key of the user
+     * @throws Exception
+     *             if the specified user id/email does not exist
+     */
     /*@ public normal_behaviour
       @  requires (\exists int i; 0 <= i && i < count; emails[i] == id);
       @  ensures (\exists int i; 0 <= i && i < count; \result == keys[i] && emails[i] == id);
@@ -56,7 +76,17 @@ public class Keyserver {
             throw new Exception();       
     }
 
-  
+    /**
+     * Stores request to add the given key for the specified user. The key still
+     * needs to be confirmed with {@link #addConfirm(int, int)}. Does nothing if
+     * the specified user does not exist.
+     * 
+     * @param id
+     *            id the id/email of the user
+     * @param pkey
+     *            the key to be added after confirmation
+     * @return the array index where the key will be stored
+     */
     /*@ public normal_behaviour
       @  requires count < MAXUSERS;
       @  ensures 0 <= \result;
@@ -84,10 +114,18 @@ public class Keyserver {
         return pos;
     }
 
-
-
-
-  
+	/**
+	 * Stores the key previously supplied to {@link #addRequest(int, int)} if
+	 * the given code matches the secret confirmation code generated in
+	 * {@code addRequest} for the given user. If it does not match: does
+	 * nothing.
+	 * 
+	 * @param id
+	 *            the id/email of the user
+	 * @param code
+	 *            the confirmation code for the add operation
+	 * @return the index where the key is stored, or -1 if nothing is done.
+	 */
     /*@ public normal_behaviour
 	  @ requires code > 0 && (\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
       @  ensures 0 <= \result;
@@ -115,12 +153,17 @@ public class Keyserver {
 
         return pos;
     }
-    
-    
 
-    
-    
-
+    /**
+     * Stores request to remove the given key for the specified user. The
+     * removal still needs to be confirmed with {@link #delConfirm(int, int)}.
+     * Does nothing if the specified user does not exist.
+     * 
+     * @param id
+     *            the id/email of the user
+     * @return the array index where the key will be stored. -1 if the user does
+     *         not exist
+     */
     /*@ public normal_behaviour
       @  requires (\exists int i; 0 <= i && i < count; emails[i] == id);
       @  ensures (\forall int i; 0 <= i && i < count; (i != \result ==>
@@ -143,11 +186,17 @@ public class Keyserver {
 		
 		return pos;
     }
-    
-    
-    
-    
 
+    /**
+     * Removes the key as previously requested in {@link #delRequest(int)} if
+	 * the given code matches the secret confirmation code generated in
+     * {@code delRequest} for the given user. Does nothing if there is no match.
+     * 
+     * @param id
+     *            the id/email of the user
+     * @param code
+     *            the confirmation code for the removal operation
+     */
     /*@ public normal_behaviour
 	  @  requires code > 0 && (\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
       @  ensures count == \old(count) - 1;
