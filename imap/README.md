@@ -29,3 +29,18 @@ There are additional symbols and rules.
 
 * Implementation seems to be very difficult. Lots of interaction seems
   to be needed.
+
+
+## Hints
+
+For KIMapImpl::add:
+
+case result_0 < 0:
+* existential quant. instantiated by self.count. (does not find always this ...)
+
+Remainder should go through automatically.
+
+For KeyserverImpl::add:
+
+Make sure that the invariant rules on the field.<inv> assumptions are
+applied for showing the invariant.

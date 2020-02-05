@@ -1,11 +1,13 @@
 public interface KIMap  {
     //@ public instance ghost \locset footprint;
     
-    /*@ public instance model \map m; */
+    /*@ public instance ghost \map m; */
 
-    //@ public instance invariant \dl_isIntMap(this.m);
+    // @ public instance invariant \dl_isIntMap(this.m);
+
+    //@ public instance invariant \subset(this.m, footprint);
+    //@ public instance invariant \subset(\singleton(this.footprint), footprint);
     
-    //@ accessible m : footprint;
     //@ accessible \inv : footprint;
 
     /*@
@@ -21,22 +23,20 @@ public interface KIMap  {
       @  ensures \dl_mapGet(m, key) == \result;
       @  assignable \strictly_nothing;
       @*/
-    public int get(int key) throws Exception;
+    public int get(int key);
 
     /*@
       @ public normal_behavior 
-      @  ensures \dl_inDomain(m, key);
-      @  // ensures \dl_mapGet(m, key) == value;
       @  ensures m == \dl_mapUpdate(\old(m), key, value);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void put(int key, int value);
-    
 
     /*@
       @ public normal_behavior 
-      @  ensures !\dl_inDomain(m, key);
       @  ensures m == \dl_mapRemove(\old(m), key);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void del(int key);
