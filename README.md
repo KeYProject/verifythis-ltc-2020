@@ -24,6 +24,7 @@ four integer arrays which store
 * the id/email of the user, represented currently by an integer
 * two arrays for confirmed and unconfirmed keys, and
 * an array that stores confirmation codes.
+
 The number of users is limited, as the arrays are never resized.
 
 ### Map version
