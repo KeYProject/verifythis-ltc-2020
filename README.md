@@ -18,11 +18,14 @@ Project group:
 
 ### A simply email-key map
 
-In [simplified/](simpflified), you find a simple implementation for a email-key
-map -- verifiable in KeY. The implementation is based upon two arrays, for the
-key and the value. The number of pairs are limited as the arrays are never
-resized. It also does not support the verifying part of the *Verifying Key
-Server*
+In [simplified/](simpflified), you find a simple implementation for the
+keyserver -- verifiable without interactions in KeY. The implementation
+is based upon four integer arrays that store:
+* the id/email of the user, represented currently by an integer
+* two arrays for confirmed and unconfirmed keys, and
+* an array that stores confirmation codes.
+
+The maximum number of users is fixed to 1024, as the arrays are never resized.
 
 ### Map version
 
