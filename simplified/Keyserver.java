@@ -1,5 +1,6 @@
 /**
- * Java version of the HAGRID OpenPGP server. Manages the access to public keys.
+ * Simplified Java version of the HAGRID OpenPGP server
+ *( https://gitlab.com/hagrid-keyserver ). Manages the access to public keys.
  * 
  */
 public class Keyserver {
