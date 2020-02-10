@@ -32,9 +32,9 @@ public class KeyServerImpl implements KeyServer {
 
     //@ invariant \dl_isFinite(confAddEmail);
 
-    //@ invariant state == storedKeys.m;
-    //@ invariant confAddEmail == unconfirmedAdditionsEmail.m;
-    //@ invariant confAddKey == unconfirmedAdditionsKey.m;
+    //@ invariant state == storedKeys.mmap;
+    //@ invariant confAddEmail == unconfirmedAdditionsEmail.mmap;
+    //@ invariant confAddKey == unconfirmedAdditionsKey.mmap;
 
     /*@ public normal_behaviour
       @  ensures state == \dl_mapEmpty();
@@ -68,7 +68,7 @@ public class KeyServerImpl implements KeyServer {
         
         // //@ normal_behaviour
         // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
-        // //@ ensures uAE.m == \dl_mapUpdate(\old(confAddEmail), token, id);
+        // //@ ensures uAE.mmap == \dl_mapUpdate(\old(confAddEmail), token, id);
         // //@ assignable \strictly_nothing;
         // { int block1; }
         
@@ -76,12 +76,12 @@ public class KeyServerImpl implements KeyServer {
 
         // //@ normal_behaviour
         // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
-        // //@ ensures uAK.m == \dl_mapUpdate(\old(confAddKey), token, pkey);
+        // //@ ensures uAK.mmap == \dl_mapUpdate(\old(confAddKey), token, pkey);
         // //@ assignable \strictly_nothing;
         // { int block2; }
         
-        //@ set confAddEmail = uAE.m;
-        //@ set confAddKey = uAK.m;
+        //@ set confAddEmail = uAE.mmap;
+        //@ set confAddKey = uAK.mmap;
       
         // KeYInternal.UNFINISHED_PROOF();
         return token;
