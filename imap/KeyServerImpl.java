@@ -30,6 +30,13 @@ public class KeyServerImpl implements KeyServer {
       @ );
       @*/
 
+    // HACK ONLY
+    /*@ model_behaviour 
+      @  signals (Throwable ex) false;
+      @  ensures \result == x.mmap; 
+      @ model helper instance \map mmmap(KIMap x) { return x.mmap; }
+      @*/
+
     //@ invariant \dl_isFinite(confAddEmail);
 
     //@ invariant state == storedKeys.mmap;
@@ -79,9 +86,11 @@ public class KeyServerImpl implements KeyServer {
         // //@ ensures uAK.mmap == \dl_mapUpdate(\old(confAddKey), token, pkey);
         // //@ assignable \strictly_nothing;
         // { int block2; }
-        
-        //@ set confAddEmail = uAE.mmap;
-        //@ set confAddKey = uAK.mmap;
+
+        // HACK. Should be "confAddEmail = uAE.mmap;"
+        //@ set confAddEmail = mmmap(uAE);
+        //@ set confAddKey = mmmap(uAK);
+        ;
       
         // KeYInternal.UNFINISHED_PROOF();
         return token;

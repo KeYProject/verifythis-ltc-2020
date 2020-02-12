@@ -1,7 +1,8 @@
 public interface KIMap  {
     //@ public instance ghost \free footprint;
     
-    /*@ public instance model \map mmap; */
+    //@ public instance model \map mmap;
+    //@  accessible mmap : footprint;
    
     //@ accessible \inv : footprint;
 
