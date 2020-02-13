@@ -46,5 +46,23 @@ public interface KeyServer {
       @  // assignable footprint;
       @*/
     public void addConfirm(int token);
+
+    /*@ public normal_behaviour
+      @  requires true;
+      @  ensures keyStore == \old(keyStore);
+      @  ensures pendDelEmail == \dl_mapUpdate(\old(pendDelEmail), \result, id);
+      @  ensures pendDelKey == \dl_mapUpdate(\old(pendDelKey), \result, \dl_mapGet(keyStore, id));
+      @*/
+    public int del(int id);
+    
+
+    /*@ public normal_behavior
+      @  requires \dl_inDomain(pendDelEmail, token);
+      @  ensures keyStore == \dl_mapRemove(\old(keyStore), \dl_mapGet(pendDelEmail, token));
+      @  ensures pendAddEmail == \dl_mapRemove(\old(pendAddEmail), token);
+      @  ensures pendAddKey == \dl_mapRemove(\old(pendAddKey), token);
+      @*/
+    public void delConfirm(int token);
+
     
 }

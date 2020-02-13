@@ -17,14 +17,14 @@ public class KeyServerImpl implements KeyServer {
     //@ invariant mapPendAddKey.<inv>;
     private final KIMap mapPendAddKey = KIMap.newMap();
 
-    //@ invariant unconfirmedDeletionsEmail.<inv>;
-    private final KIMap unconfirmedDeletionsEmail = KIMap.newMap();
+    //@ invariant mapPendDelEmail.<inv>;
+    private final KIMap mapPendDelEmail = KIMap.newMap();
 
-    //@ invariant unconfirmedDeletionsKey.<inv>;
-    private final KIMap unconfirmedDeletionsKey = KIMap.newMap();
+    //@ invariant mapPendDelKey.<inv>;
+    private final KIMap mapPendDelKey = KIMap.newMap();
 
     /*@ invariant mapKeys != mapPendAddEmail && mapKeys != mapPendAddKey &&
-      @   mapPendAddEmail != mapPendAddKey && mapPendAddEmail != mapPendDelKey 
+      @   mapPendAddEmail != mapPendAddKey && mapPendAddEmail != mapPendDelKey &&
       @   mapPendAddKey != mapPendDelKey && mapPendDelKey != mapPendDelEmail;
       @*/
 
@@ -52,19 +52,19 @@ public class KeyServerImpl implements KeyServer {
         {}
     }
 
-    public boolean contains(int email) {
+    public boolean contains(final int email) {
         return mapKeys.contains(email);
     }
     
-    public int get(int id) {
+    public int get(final int id) {
         return mapKeys.get(id);
     }
 
-    public int add(int id, int pkey) {
+    public int add(final int id, final int pkey) {
         // KeYInternal.UNFINISHED_PROOF();
-        KIMap pAE = mapPendAddEmail;
-        KIMap pAK = mapPendAddKey;
-        int token = newToken();        
+        final KIMap pAE = mapPendAddEmail;
+        final KIMap pAK = mapPendAddKey;
+        final int token = newToken();        
 
         pAE.put(token, id);
                 
@@ -97,38 +97,37 @@ public class KeyServerImpl implements KeyServer {
         return token;
     }
     
-    public void addConfirm(int tokenNumber) {
+    public void addConfirm(final int tokenNumber) {
         KeYInternal.UNFINISHED_PROOF();
-        int id = mapPendAddEmail.get(tokenNumber);
+        final int id = mapPendAddEmail.get(tokenNumber);
         mapPendAddEmail.del(tokenNumber);
-        int pkey = mapPendAddKey.get(tokenNumber);
+        final int pkey = mapPendAddKey.get(tokenNumber);
         mapPendAddKey.del(tokenNumber);
         mapKeys.put(id, pkey);
     }    
     
-  public int del(int id) {    
+  public int del(final int id) {    
         KeYInternal.UNFINISHED_PROOF();  
-        KIMap uDE = unconfirmedDeletionsEmail;
-        KIMap uDK = unconfirmedDeletionsKey;
-        int pkey = get(id);
-        int token = newToken();
+        final KIMap uDE = mapPendDelEmail;
+        final KIMap uDK = mapPendDelKey;
+        final int pkey = get(id);
+        final int token = newToken();
         uDE.put(token, id);              
         uDK.put(token, pkey);
-
-        // HACK. Should be "pendAddEmail = uAE.mmap;"
-        //@ set pendDelEmail = mmmap(uDE);
-        //@ set pendDelKey = mmmap(uDK);
+        
+        //@ set pendDelEmail = uDE.mmap;
+        //@ set pendDelKey = uDK.mmap;
         ;
         return token;
     }
 
-    public void delConfirm(int tokenNumber) {
+    public void delConfirm(final int tokenNumber) {
       KeYInternal.UNFINISHED_PROOF();
-      KIMap uDE = unconfirmedDeletionsEmail;
-      KIMap uDK = unconfirmedDeletionsKey;
+      final KIMap uDE = mapPendDelEmail;
+      final KIMap uDK = mapPendDelKey;
 
-      int id = uDE.get(tokenNumber);
-      int pkey = uDK.get(tokenNumber);
+      final int id = uDE.get(tokenNumber);
+      final int pkey = uDK.get(tokenNumber);
 
       uDE.del(tokenNumber);
       uDK.del(tokenNumber);
