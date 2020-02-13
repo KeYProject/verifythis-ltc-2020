@@ -17,21 +17,25 @@ public class KeyServerImpl implements KeyServer {
     //@ invariant mapPendAddKey.<inv>;
     private final KIMap mapPendAddKey = KIMap.newMap();
 
-    // @ invariant unconfirmedDeletionsEmail.<inv>;
-    // private final KIMap unconfirmedDeletionsEmail = KIMap.newMap();
+    //@ invariant unconfirmedDeletionsEmail.<inv>;
+    private final KIMap unconfirmedDeletionsEmail = KIMap.newMap();
 
-    // @ invariant unconfirmedDeletionsKey.<inv>;
-    // private final KIMap unconfirmedDeletionsKey = KIMap.newMap();
+    //@ invariant unconfirmedDeletionsKey.<inv>;
+    private final KIMap unconfirmedDeletionsKey = KIMap.newMap();
 
     /*@ invariant mapKeys != mapPendAddEmail && mapKeys != mapPendAddKey &&
-      @   mapPendAddEmail != mapPendAddKey;
+      @   mapPendAddEmail != mapPendAddKey && mapPendAddEmail != mapPendDelKey 
+      @   mapPendAddKey != mapPendDelKey && mapPendDelKey != mapPendDelEmail;
       @*/
 
     //@ invariant \dl_isFinite(pendAddEmail);
+    //@ invariant \dl_isFinite(pendDelEmail);
 
     //@ invariant keyStore == mapKeys.mmap;
     //@ invariant pendAddEmail == mapPendAddEmail.mmap;
     //@ invariant pendAddKey == mapPendAddKey.mmap;
+    //@ invariant pendDelEmail == mapPendDelEmail.mmap;
+    //@ invariant pendDelKey == mapPendDelKey.mmap;
 
     /*@ public normal_behaviour
       @  ensures keyStore == \dl_mapEmpty();
@@ -60,16 +64,7 @@ public class KeyServerImpl implements KeyServer {
         // KeYInternal.UNFINISHED_PROOF();
         KIMap pAE = mapPendAddEmail;
         KIMap pAK = mapPendAddKey;
-        int token = newToken();
-        uAE.put(token, id);
-        
-        // //@ normal_behaviour
-        // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
-        // //@ ensures uAE.mmap == \dl_mapUpdate(\old(confAddEmail), token, id);
-        // //@ assignable \strictly_nothing;
-        // { int block1; }
-        
-        uAK.put(token, pkey);
+        int token = newToken();        
 
         pAE.put(token, id);
                 
@@ -111,7 +106,8 @@ public class KeyServerImpl implements KeyServer {
         mapKeys.put(id, pkey);
     }    
     
-  public int del(int id) {      
+  public int del(int id) {    
+        KeYInternal.UNFINISHED_PROOF();  
         KIMap uDE = unconfirmedDeletionsEmail;
         KIMap uDK = unconfirmedDeletionsKey;
         int pkey = get(id);
@@ -126,7 +122,7 @@ public class KeyServerImpl implements KeyServer {
         return token;
     }
 
-    public void delConfirm(int token) {
+    public void delConfirm(int tokenNumber) {
       KeYInternal.UNFINISHED_PROOF();
       KIMap uDE = unconfirmedDeletionsEmail;
       KIMap uDK = unconfirmedDeletionsKey;
@@ -137,8 +133,8 @@ public class KeyServerImpl implements KeyServer {
       uDE.del(tokenNumber);
       uDK.del(tokenNumber);
 
-      if(storedKeys.get(id) == pkey) {}
-        storedKeys.del(id);
+      if(mapKeys.get(id) == pkey) {
+        mapKeys.del(id);
       }
     }
 }
