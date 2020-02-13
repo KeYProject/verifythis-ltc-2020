@@ -45,6 +45,7 @@ public interface KIMap  {
     public static KIMap newMap() {
         // It is a marker function only.
         KeYInternal.UNFINISHED_PROOF();
+        throw new Error();
     }
     
 
