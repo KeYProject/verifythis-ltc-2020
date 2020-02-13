@@ -17,14 +17,12 @@ public class KeyServerImpl implements KeyServer {
     //@ invariant mapPendAddKey.<inv>;
     private final KIMap mapPendAddKey = KIMap.newMap();
 
-    // @ invariant unconfirmedDeletionsEmail.<inv>;
-    // private final KIMap unconfirmedDeletionsEmail = KIMap.newMap();
-
-    // @ invariant unconfirmedDeletionsKey.<inv>;
-    // private final KIMap unconfirmedDeletionsKey = KIMap.newMap();
-
+    //@ invariant mapPendDelEmail.<inv>;
+    private final KIMap mapPendDelEmail = KIMap.newMap();
+    
     /*@ invariant mapKeys != mapPendAddEmail && mapKeys != mapPendAddKey &&
-      @   mapPendAddEmail != mapPendAddKey;
+      @   mapKeys != mapPendDelEmail && mapPendAddEmail != mapPendAddKey && 
+      @   mapPendAddEmail != mapPendDelEmail && mapPendAddKey != mapPendDelEmail;
       @*/
 
     //@ invariant \dl_isFinite(pendAddEmail);
@@ -32,6 +30,7 @@ public class KeyServerImpl implements KeyServer {
     //@ invariant keyStore == mapKeys.mmap;
     //@ invariant pendAddEmail == mapPendAddEmail.mmap;
     //@ invariant pendAddKey == mapPendAddKey.mmap;
+    //@ invariant pendDelEmail == mapPendDelEmail.mmap;
 
     /*@ public normal_behaviour
       @  ensures keyStore == \dl_mapEmpty();
@@ -44,6 +43,7 @@ public class KeyServerImpl implements KeyServer {
         //@ set keyStore = \dl_mapEmpty();
         //@ set pendAddEmail = \dl_mapEmpty();
         //@ set pendAddKey = \dl_mapEmpty();
+        //@ set pendDelEmail = \dl_mapEmpty();
         // @ set footprint = \everything;
         {}
     }
@@ -57,7 +57,6 @@ public class KeyServerImpl implements KeyServer {
     }
 
     public int add(int id, int pkey) {
-        // KeYInternal.UNFINISHED_PROOF();
         KIMap pAE = mapPendAddEmail;
         KIMap pAK = mapPendAddKey;
         int token = newToken();
@@ -104,6 +103,24 @@ public class KeyServerImpl implements KeyServer {
         //@ set keyStore = mapKeys.mmap;
 
         return;
-    }    
-    
+    }
+
+    public int del(int id) {
+        int token = newToken();
+        mapPendDelEmail.put(token, id);
+         //@ set pendDelEmail = mapPendDelEmail.mmap;
+        return token;
+    }
+
+    public void delConfirm(int token) {
+        
+        int id = mapPendDelEmail.get(token);
+        mapPendDelEmail.del(token);
+        mapKeys.del(id);
+        
+        //@ set pendDelEmail = mapPendDelEmail.mmap;
+        //@ set keyStore = mapKeys.mmap;
+
+        return;
+    }
 }

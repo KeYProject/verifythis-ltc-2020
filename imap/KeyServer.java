@@ -6,6 +6,7 @@ public interface KeyServer {
     /*@ instance ghost \map keyStore;
       @ instance ghost \map pendAddEmail;
       @ instance ghost \map pendAddKey;
+      @ instance ghost \map pendDelEmail;
       @*/
 
     /*@ public instance invariant (\forall int token;
@@ -24,13 +25,14 @@ public interface KeyServer {
       @  assignable \strictly_nothing;
       @*/
     public int get(int email);
-
     
     /*@ public normal_behaviour
       @  requires true;
       @  ensures keyStore == \old(keyStore);
       @  ensures pendAddEmail == \dl_mapUpdate(\old(pendAddEmail), \result, id);
       @  ensures pendAddKey == \dl_mapUpdate(\old(pendAddKey), \result, pkey);
+      @  ensures pendDelEmail == \old(pendDelEmail);
+      @  ensures !\dl_inDomain(\old(pendAddEmail), \result);
       @  // assignable footprint;
       @*/
     public int add(int id, int pkey);
@@ -42,8 +44,32 @@ public interface KeyServer {
       @     \dl_mapGet(\old(pendAddKey), token));
       @  ensures pendAddEmail == \dl_mapRemove(\old(pendAddEmail), token);
       @  ensures pendAddKey == \dl_mapRemove(\old(pendAddKey), token);
+      @  ensures pendDelEmail == \old(pendDelEmail);
       @  // assignable footprint;
       @*/
     public void addConfirm(int token);
+   
+    /*@ public normal_behaviour
+      @  ensures keyStore == \old(keyStore);
+      @  ensures pendAddEmail == \old(pendAddEmail);
+      @  ensures pendAddKey == \old(pendAddKey);
+      @  ensures pendDelEmail == \dl_mapUpdate(\old(pendDelEmail), \result, id);
+      @  ensures !\dl_inDomain(\old(pendAddEmail), \result);
+      @  // assignable footprint;
+      @*/
+    public int del(int id);
+
+    /*@ public normal_behavior
+      @  requires \dl_inDomain(pendDelEmail, token);
+      @  ensures keyStore == \dl_mapRemove(\old(keyStore),
+      @     \dl_mapGet(\old(pendDelEmail), token));
+      @  ensures pendAddEmail == \old(pendAddEmail);
+      @  ensures pendAddKey == \old(pendAddKey);
+      @  ensures pendDelEmail == \dl_mapRemove(\old(pendDelEmail), token);
+      @  // assignable footprint;
+      @*/
+    public void delConfirm(int token);
+
+    
     
 }
