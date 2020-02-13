@@ -3,7 +3,7 @@ public interface KeyServer {
 
     // @ public instance ghost \locset footprint;
 
-    /*@ instance ghost \map database;       
+    /*@ instance ghost \map keyStore;
       @ instance ghost \map pendAddEmail;
       @ instance ghost \map pendAddKey;
       @ instance ghost \map pendDelEmail;
@@ -15,14 +15,14 @@ public interface KeyServer {
       @*/
     
     /*@ public normal_behaviour
-      @  ensures \result == \dl_inDomain(database, email);
+      @  ensures \result == \dl_inDomain(keyStore, email);
       @  assignable \strictly_nothing;
       @*/
     public boolean contains(int email);
     
     /*@ public normal_behaviour
-      @  requires \dl_inDomain(database, email);
-      @  ensures \result == \dl_mapGet(database, email);
+      @  requires \dl_inDomain(keyStore, email);
+      @  ensures \result == \dl_mapGet(keyStore, email);
       @  assignable \strictly_nothing;
       @*/
     public int get(int email);
@@ -30,7 +30,7 @@ public interface KeyServer {
     
     /*@ public normal_behaviour
       @  requires true;
-      @  ensures database == \old(database);
+      @  ensures keyStore == \old(keyStore);
       @  ensures pendAddEmail == \dl_mapUpdate(\old(pendAddEmail), \result, id);
       @  ensures pendAddKey == \dl_mapUpdate(\old(pendAddKey), \result, pkey);
       @  // assignable footprint;
@@ -39,7 +39,7 @@ public interface KeyServer {
     
     /*@ public normal_behavior
       @  requires \dl_inDomain(pendAddEmail, token);
-      @  ensures database == \dl_mapUpdate(\old(database), 
+      @  ensures keyStore == \dl_mapUpdate(\old(keyStore), 
       @     \dl_mapGet(pendAddEmail, token), \dl_mapGet(pendAddKey, token));
       @  ensures pendAddEmail == \dl_mapRemove(\old(pendAddEmail), token);
       @  ensures pendAddKey == \dl_mapRemove(\old(pendAddKey), token);

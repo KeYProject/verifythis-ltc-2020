@@ -35,4 +35,18 @@ public interface KIMap  {
       @*/
     public void del(int key);
 
+
+    /*@ public normal_behaviour
+      @  ensures \result.mmap == \dl_mapEmpty();
+      @  ensures \fresh(\result);
+      @  ensures \invariant_for(\result);
+      @  assignable \nothing;
+      @*/      
+    public static KIMap newMap() {
+        // It is a marker function only.
+        KeYInternal.UNFINISHED_PROOF();
+        throw new Error();
+    }
+    
+
 }
