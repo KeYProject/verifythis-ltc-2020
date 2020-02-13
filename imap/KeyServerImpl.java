@@ -8,108 +8,84 @@
  */
 public class KeyServerImpl implements KeyServer {
 
-    //@ invariant storedKeys.<inv>;
-    private final KIMap storedKeys = new KIMapImpl();
+    //@ invariant mapKeys.<inv>;
+    private final KIMap mapKeys = KIMap.newMap();
 
-    //@ invariant unconfirmedAdditionsEmail.<inv>;
-    private final KIMap unconfirmedAdditionsEmail = new KIMapImpl();
+    //@ invariant mapPendAddEmail.<inv>;
+    private final KIMap mapPendAddEmail = KIMap.newMap();
 
-    //@ invariant unconfirmedAdditionsKey.<inv>;
-    private final KIMap unconfirmedAdditionsKey = new KIMapImpl();
+    //@ invariant mapPendAddKey.<inv>;
+    private final KIMap mapPendAddKey = KIMap.newMap();
 
     // @ invariant unconfirmedDeletionsEmail.<inv>;
-    // private final KIMap unconfirmedDeletionsEmail = new KIMapImpl();
+    // private final KIMap unconfirmedDeletionsEmail = KIMap.newMap();
 
     // @ invariant unconfirmedDeletionsKey.<inv>;
-    // private final KIMap unconfirmedDeletionsKey = new KIMapImpl();
+    // private final KIMap unconfirmedDeletionsKey = KIMap.newMap();
 
-    /*@ invariant \disjoint(storedKeys.footprint, 
-      @  unconfirmedAdditionsEmail.footprint, unconfirmedAdditionsKey.footprint,
-      @  //unconfirmedDeletionsEmail.footprint, unconfirmedDeletionsKey.footprint
-      @  this.*
-      @ );
+    /*@ invariant mapKeys != mapPendAddEmail && mapKeys != mapPendAddKey &&
+      @   mapPendAddEmail != mapPendAddKey;
       @*/
 
-    // HACK ONLY
-    /*@ model_behaviour 
-      @  signals (Throwable ex) false;
-      @  ensures \result == x.mmap; 
-      @ model helper instance \map mmmap(KIMap x) { return x.mmap; }
-      @*/
+    //@ invariant \dl_isFinite(pendAddEmail);
 
-    //@ invariant \dl_isFinite(confAddEmail);
-
-    //@ invariant state == storedKeys.mmap;
-    //@ invariant confAddEmail == unconfirmedAdditionsEmail.mmap;
-    //@ invariant confAddKey == unconfirmedAdditionsKey.mmap;
+    //@ invariant keyStore == mapKeys.mmap;
+    //@ invariant pendAddEmail == mapPendAddEmail.mmap;
+    //@ invariant pendAddKey == mapPendAddKey.mmap;
 
     /*@ public normal_behaviour
-      @  ensures state == \dl_mapEmpty();
-      @  ensures confAddEmail == \dl_mapEmpty();
-      @  ensures confAddKey == \dl_mapEmpty();
-      @ // ensures \new_elems_fresh(footprint);
+      @  ensures keyStore == \dl_mapEmpty();
+      @  ensures pendAddEmail == \dl_mapEmpty();
+      @  ensures pendAddKey == \dl_mapEmpty();
+      @  // ensures \fresh(footprint);
       @  assignable \nothing;
       @*/
     public KeyServerImpl() {
-        //@ set state = \dl_mapEmpty();
-        //@ set confAddEmail = \dl_mapEmpty();
-        //@ set confAddKey = \dl_mapEmpty();
+        //@ set keyStore = \dl_mapEmpty();
+        //@ set pendAddEmail = \dl_mapEmpty();
+        //@ set pendAddKey = \dl_mapEmpty();
         // @ set footprint = \everything;
         {}
     }
 
     public boolean contains(int email) {
-        return storedKeys.contains(email);
+        return mapKeys.contains(email);
     }
     
     public int get(int id) {
-        return storedKeys.get(id);
+        return mapKeys.get(id);
     }
 
     public int add(int id, int pkey) {
         // KeYInternal.UNFINISHED_PROOF();
-        KIMap uAE = unconfirmedAdditionsEmail;
-        KIMap uAK = unconfirmedAdditionsKey;
+        KIMap pAE = mapPendAddEmail;
+        KIMap pAK = mapPendAddKey;
         int token = newToken();
-        uAE.put(token, id);
-        
-        // //@ normal_behaviour
-        // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
-        // //@ ensures uAE.mmap == \dl_mapUpdate(\old(confAddEmail), token, id);
-        // //@ assignable \strictly_nothing;
-        // { int block1; }
-        
-        uAK.put(token, pkey);
 
-        // //@ normal_behaviour
-        // //@ ensures \disjoint(uAE.footprint, uAK.footprint);
-        // //@ ensures uAK.mmap == \dl_mapUpdate(\old(confAddKey), token, pkey);
-        // //@ assignable \strictly_nothing;
-        // { int block2; }
+        pAE.put(token, id);
+                
+        pAK.put(token, pkey);
 
-        // HACK. Should be "confAddEmail = uAE.mmap;"
-        //@ set confAddEmail = mmmap(uAE);
-        //@ set confAddKey = mmmap(uAK);
-        ;
-      
-        // KeYInternal.UNFINISHED_PROOF();
+        //@ set pendAddEmail = pAE.mmap;
+        //@ set pendAddKey = pAK.mmap;
+
         return token;
     }
 
     /*@ public normal_behaviour
-      @  ensures !\dl_inDomain(confAddEmail, \result);
+      @  ensures !\dl_inDomain(pendAddEmail, \result);
       @  assignable \strictly_nothing;
       @*/
     private int newToken() {       
         int token = Random.nextInt();
-        //@ ghost \map decrDomain = confAddEmail;
+        //@ ghost \map decrDomain = pendAddEmail;
         /*@ loop_invariant (\forall int t;
-          @    t >= token; \dl_inDomain(confAddEmail, t) ==> \dl_inDomain(decrDomain, t));
+          @    t >= token; \dl_inDomain(pendAddEmail, t) ==> \dl_inDomain(decrDomain, t));
           @ loop_invariant \dl_isFinite(decrDomain);
           @  decreases \dl_mapSize(decrDomain);
           @  assignable \strictly_nothing;
           @*/
-        while(unconfirmedAdditionsEmail.contains(token)) {
+        while(mapPendAddEmail.contains(token)) {
             //@ set decrDomain = \dl_mapRemove(decrDomain, token);
             token++;
             {}
@@ -119,11 +95,11 @@ public class KeyServerImpl implements KeyServer {
     
     public void addConfirm(int tokenNumber) {
         KeYInternal.UNFINISHED_PROOF();
-        int id = unconfirmedAdditionsEmail.get(tokenNumber);
-        unconfirmedAdditionsEmail.del(tokenNumber);
-        int pkey = unconfirmedAdditionsKey.get(tokenNumber);
-        unconfirmedAdditionsKey.del(tokenNumber);
-        storedKeys.put(id, pkey);
+        int id = mapPendAddEmail.get(tokenNumber);
+        mapPendAddEmail.del(tokenNumber);
+        int pkey = mapPendAddKey.get(tokenNumber);
+        mapPendAddKey.del(tokenNumber);
+        mapKeys.put(id, pkey);
     }    
     
 }

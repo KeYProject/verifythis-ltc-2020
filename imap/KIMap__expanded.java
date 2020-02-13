@@ -36,4 +36,14 @@ public interface KIMap__expanded  {
       @*/
     public void del(int key);
 
+    /*@ public normal_behaviour
+      @  ensures \result.mmap == \dl_mapEmpty();
+      @  ensures \fresh(\result);
+      @  ensures \invariant_for(\result);
+      @  assignable \nothing;
+      @*/      
+    public static KIMap__expanded newMap() {
+        return new KIMapImpl();
+    }
+    
 }
