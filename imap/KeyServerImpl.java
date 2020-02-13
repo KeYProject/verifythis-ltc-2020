@@ -88,18 +88,22 @@ public class KeyServerImpl implements KeyServer {
         while(mapPendAddEmail.contains(token)) {
             //@ set decrDomain = \dl_mapRemove(decrDomain, token);
             token++;
-            {}
         }
         return token;
     }
     
-    public void addConfirm(int tokenNumber) {
-        KeYInternal.UNFINISHED_PROOF();
-        int id = mapPendAddEmail.get(tokenNumber);
-        mapPendAddEmail.del(tokenNumber);
-        int pkey = mapPendAddKey.get(tokenNumber);
-        mapPendAddKey.del(tokenNumber);
+    public void addConfirm(int token) {       
+        int id = mapPendAddEmail.get(token);
+        int pkey = mapPendAddKey.get(token);
+        mapPendAddEmail.del(token);
+        mapPendAddKey.del(token);
         mapKeys.put(id, pkey);
+        
+        //@ set pendAddEmail = mapPendAddEmail.mmap;
+        //@ set pendAddKey = mapPendAddKey.mmap;
+        //@ set keyStore = mapKeys.mmap;
+
+        return;
     }    
     
 }

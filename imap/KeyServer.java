@@ -8,7 +8,7 @@ public interface KeyServer {
       @ instance ghost \map pendAddKey;
       @*/
 
-    /*@ instance invariant (\forall int token;
+    /*@ public instance invariant (\forall int token;
       @   \dl_inDomain(pendAddEmail, token) == \dl_inDomain(pendAddKey, token));
       @*/
     
@@ -38,7 +38,8 @@ public interface KeyServer {
     /*@ public normal_behavior
       @  requires \dl_inDomain(pendAddEmail, token);
       @  ensures keyStore == \dl_mapUpdate(\old(keyStore), 
-      @     \dl_mapGet(pendAddEmail, token), \dl_mapGet(pendAddKey, token));
+      @     \dl_mapGet(\old(pendAddEmail), token), 
+      @     \dl_mapGet(\old(pendAddKey), token));
       @  ensures pendAddEmail == \dl_mapRemove(\old(pendAddEmail), token);
       @  ensures pendAddKey == \dl_mapRemove(\old(pendAddKey), token);
       @  // assignable footprint;
