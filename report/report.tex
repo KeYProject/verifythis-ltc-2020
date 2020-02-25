@@ -57,12 +57,41 @@ b. a complex, map-based version.
 
 4. 
 
-\paragraph{A simply email-key map}
+\paragraph{A simple email-key map}
 
-In simplified/, you find a simple implementation for a email-key map --
-verifiable in KeY. The implementation is based upon two arrays, for the key and
-the value. The number of pairs are limited as the arrays are never resized. It
-also does not support the verifying part of the Verifying Key Server
+The most basic version is a simplified implementation for the keyserver -- verifiable without interactions in KeY, based on five integer arrays that store for each user:
+
+\begin{itemize}
+\item the id/email of the user, represented currently by an integer
+\item two arrays for confirmed and unconfirmed keys, and
+\item an array that stores confirmation codes.
+\item an array that stores which operation was most recently requested (the implementation only allows to confirm that operation)
+\end{itemize}
+The maximum number of users is fixed to 1024, as the arrays are never resized. The table below shows the main metrics:
+
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ Lines of Code & Lines of Specs & Proof Steps \\
+ \hline
+ 69 & 82 & 30.119 \\
+ \hline
+\end{tabular}
+\end{center}
+
+% proof stats:
+% addConfirm: 2665+2549
+% addRequest: 5710
+% delConfirm: 8321+2480
+% delRequest: 2478+1212
+% get: 1830
+% posOfId: 2874
+
+
+We also attempted to add a `timeout' mechanism, similar to the real-world Rust implementation.
+If users attempted to confirm the requested operation after a time treshold has passed (say, 1 hour), the operation is a no-op.
+This is not difficult to add in the implementation: one can just store the current time when the user requested the operation in an additional array, and compare it to the time when the user attempts to confirm the operation. But it is problematic in the specification: it is possible that the timelimit has not elapsed in the precondition (i.e. the specification), but that it has elapsed later when the JVM determines the current time in the method body.
+So we dropped the timeout aspect.
 
 \paragraph{Map version}
 
