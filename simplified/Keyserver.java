@@ -9,16 +9,31 @@ public class Keyserver {
     private final int[] keys = new int[MAXUSERS];
     private final int[] codes = new int[MAXUSERS];
     private final int[] unconfirmedKeys = new int[MAXUSERS];
+    private final int[] requestType = new int[MAXUSERS];
     private int count;
+    private static final int REQUESTTYPE_ADD = 0;
+    private static final int REQUESTTYPE_REMOVE = 1;
+
 
     //ruling out aliasing between arrays
     //@ invariant emails != keys && emails != codes && emails != unconfirmedKeys;
+    //@ invariant emails != requestType;
     //@ invariant keys != codes && keys != unconfirmedKeys;
-    //@ invariant codes != unconfirmedKeys;
+    //@ invariant keys != requestType;
+    //@ invariant codes != unconfirmedKeys && codes != requestType;
+    //@ invariant unconfirmedKeys != requestType;
 
-    //@ invariant emails != null && keys != null && codes != null && unconfirmedKeys != null;
-    //@ invariant emails.length == MAXUSERS && keys.length == MAXUSERS && codes.length == MAXUSERS && unconfirmedKeys.length == MAXUSERS;
+    // all arrays are non-null and have the same length (the # users)
+    //@ invariant emails != null && keys != null && codes != null;
+    //@ invariant unconfirmedKeys != null && requestType != null;
+    //@ invariant emails.length == MAXUSERS && keys.length == MAXUSERS;
+    //@ invariant codes.length == MAXUSERS && unconfirmedKeys.length == MAXUSERS;
+    //@ invariant requestType.length == MAXUSERS;
+    
+    // number of users is bounded
     //@ invariant 0 <= count && count <= MAXUSERS;
+    
+    //emails are unique
     //@ invariant (\forall int i,j ; 0 <= i && i < j && j < count; emails[i] != emails[j]);
 
     /**
@@ -29,30 +44,30 @@ public class Keyserver {
      *            the id/email of the user
      * @return the array index where user info is stored
      */
-    /*@ normal_behaviour 
+    /*@ normal_behaviour
       @  requires true;
       @  ensures \result >= -1;
       @  ensures \result == -1 ==> (\forall int i; 0 <= i && i < count; emails[i] != id);
       @  ensures \result >= 0 ==> (emails[\result] == id && \result < count);
-      @  assignable \strictly_nothing; 
+      @  assignable \strictly_nothing;
       @*/    
     private int posOfId(int id) {
         /*@ loop_invariant (\forall int k; 0 <= k && k < i; emails[k] != id);
           @ loop_invariant 0 <= i && i <= count;
           @ 
-          @ decreases emails.length - i; 
+          @ decreases emails.length - i;
           @ assignable \strictly_nothing;
           @*/
         for(int i = 0; i < count;  i++) {
             if(emails[i] == id) {
                 return i;
-            }            
+            }
         }
         return -1;
-    }   
-	
+    }
+    
     /**
-     * Returns the key of the specified user.
+     * Returns the key with the specified email address.
      * 
      * @param id
      *            the id/email of the user
@@ -65,8 +80,8 @@ public class Keyserver {
       @  ensures (\exists int i; 0 <= i && i < count; \result == keys[i] && emails[i] == id);
       @  assignable \strictly_nothing;
       @ also 
-      @  public exceptional_behavior       
-      @  requires (\forall int i; 0 <= i && i < emails.length; emails[i] != id); 
+      @  public exceptional_behavior
+      @  requires (\forall int i; 0 <= i && i < emails.length; emails[i] != id);
       @  signals (Exception e) true;
       @*/
     public int get(int id) throws Exception {
@@ -74,7 +89,7 @@ public class Keyserver {
         if(pos >= 0) 
             return keys[pos];
         else 
-            throw new Exception();       
+            throw new Exception();
     }
 
     /**
@@ -94,12 +109,14 @@ public class Keyserver {
       @  ensures count == \old(count) && \result < count
       @      ||  count == \old(count) + 1 && \result == count - 1;
       @  ensures emails[\result] == id && unconfirmedKeys[\result] == pkey && codes[\result]>0;
+      @  ensures requestType[\result] == REQUESTTYPE_ADD;
       @  // preservation of the other entries
       @  ensures (\forall int i; 0<=i && i<count;
       @              (emails[i] == (i == \result ? id : \old(emails[i])))
       @           && (unconfirmedKeys[i] == (i == \result ? pkey : \old(unconfirmedKeys[i])))
-      @           && (i != \result ==> (codes[i] == \old(codes[i]))));
-      @  assignable emails[*], unconfirmedKeys[*], codes[*], count;
+      @           && (i != \result ==> (codes[i] == \old(codes[i])))
+      @           && (i != \result ==> (requestType[i] == \old(requestType[i]))));
+      @  assignable emails[*], unconfirmedKeys[*], codes[*], requestType[*], count;
       @*/
     public int addRequest(int id, int pkey) {
         int pos = posOfId(id);
@@ -108,27 +125,28 @@ public class Keyserver {
             pos = count;
             count ++;
         }
-                
+        
         emails[pos] = id;
         codes[pos] = 1; // TODO: Random positive number?
         unconfirmedKeys[pos] = pkey;
+        requestType[pos] = REQUESTTYPE_ADD;
         return pos;
     }
 
-	/**
-	 * Stores the key previously supplied to {@link #addRequest(int, int)} if
-	 * the given code matches the secret confirmation code generated in
-	 * {@code addRequest} for the given user. If it does not match: does
-	 * nothing.
-	 * 
-	 * @param id
-	 *            the id/email of the user
-	 * @param code
-	 *            the confirmation code for the add operation
-	 * @return the index where the key is stored, or -1 if nothing is done.
-	 */
+    /**
+     * Stores the key previously supplied to {@link #addRequest(int, int)} if
+     * the given code matches the secret confirmation code generated in
+     * {@code addRequest} for the given user. If it does not match: does
+     * nothing.
+     * 
+     * @param id
+     *            the id/email of the user
+     * @param code
+     *            the confirmation code for the add operation
+     * @return the index where the key is stored, or -1 if nothing is done.
+     */
     /*@ public normal_behaviour
-	  @ requires code > 0 && (\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
+      @  requires code > 0 && (\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code && requestType[i] == REQUESTTYPE_ADD));
       @  ensures 0 <= \result;
       @  ensures emails[\result] == id && keys[\result] == \old(unconfirmedKeys[\result]) && codes[\result]==0;
       @  // preservation of the other entries
@@ -137,20 +155,20 @@ public class Keyserver {
       @  assignable keys[*], codes[*];
       @ also
       @ public normal_behaviour
-      @  requires code <= 0 || !(\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
-	  @  ensures \result == -1;
+      @  requires code <= 0 || !(\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code && requestType[i] == REQUESTTYPE_ADD));
+      @  ensures \result == -1;
       @  assignable \strictly_nothing;
       @*/
     public int addConfirm(int id, int code) {
         int pos = posOfId(id);
         
-        if(pos >= 0 && code > 0 && code == codes[pos]) {
+        if(pos >= 0 && code > 0 && code == codes[pos] && requestType[pos] == REQUESTTYPE_ADD) {
             // code confirmed, store key
             keys[pos] = unconfirmedKeys[pos];
-	        codes[pos] = 0;
-	    } else {
+            codes[pos] = 0;
+        } else {
             pos = -1;
-		}
+        }
 
         return pos;
     }
@@ -167,14 +185,17 @@ public class Keyserver {
      */
     /*@ public normal_behaviour
       @  requires (\exists int i; 0 <= i && i < count; emails[i] == id);
-      @  ensures (\forall int i; 0 <= i && i < count; (i != \result ==>
-      @              (codes[i] == \old(codes[i]))));
-	  @  ensures codes[\result] > 0;
-      @  assignable codes[*];
+      @  ensures requestType[\result] == REQUESTTYPE_REMOVE;
+      @  ensures (\forall int i; 0<=i && i<count;
+      @              (emails[i] == (i == \result ? id : \old(emails[i])))
+      @           && (i != \result ==> (codes[i] == \old(codes[i])))
+      @           && (i != \result ==> (requestType[i] == \old(requestType[i]))));
+      @  ensures codes[\result] > 0;
+      @  assignable codes[*], requestType[*];
       @ also
       @ public normal_behaviour
       @  requires !(\exists int i; 0 <= i && i < count; emails[i] == id);
-	  @  ensures \result == -1;
+      @  ensures \result == -1;
       @  assignable \strictly_nothing;
       */    
     public int delRequest(int id) {
@@ -182,15 +203,16 @@ public class Keyserver {
         if(pos >= 0) {
             if(count > 0 && pos != count) {
                 codes[pos] = 1; // Random positive number?
+                requestType[pos] = REQUESTTYPE_REMOVE;
             }
         }
-		
-		return pos;
+        
+        return pos;
     }
 
     /**
      * Removes the key as previously requested in {@link #delRequest(int)} if
-	 * the given code matches the secret confirmation code generated in
+     * the given code matches the secret confirmation code generated in
      * {@code delRequest} for the given user. Does nothing if there is no match.
      * 
      * @param id
@@ -199,7 +221,7 @@ public class Keyserver {
      *            the confirmation code for the removal operation
      */
     /*@ public normal_behaviour
-	  @  requires code > 0 && (\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
+      @  requires code > 0 && (\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code && requestType[i] == REQUESTTYPE_REMOVE));
       @  ensures count == \old(count) - 1;
       @  ensures !(\exists int i; 0 <= i && i < count; emails[i] == id);
       @  ensures (\forall int e; (\forall int k; e != id;
@@ -208,13 +230,13 @@ public class Keyserver {
       @  assignable emails[*], keys[*], count;
       @ also
       @ public normal_behaviour
-	  @  requires code <= 0 || !(\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code));
+      @  requires code <= 0 || !(\exists int i; 0 <= i && i < count; (emails[i] == id && codes[i] == code && requestType[i] == REQUESTTYPE_REMOVE));
       @  assignable \strictly_nothing;
       @*/    
     public void delConfirm(int id, int code) {
 
         int pos = posOfId(id);
-        if(pos >= 0 && code > 0 && code == codes[pos]) {
+        if(pos >= 0 && code > 0 && code == codes[pos] && requestType[pos] == REQUESTTYPE_REMOVE) {
             //code confirmed, remove key
             count --;
             if(count > 0 && pos != count) {
@@ -223,5 +245,4 @@ public class Keyserver {
             }
         }
     }
-    
 }
