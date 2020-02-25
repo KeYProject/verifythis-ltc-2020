@@ -88,9 +88,11 @@ The maximum number of users is fixed to 1024, as the arrays are never resized. T
 % posOfId: 2874
 
 
-We also attempted to add a `timeout' mechanism, similar to the real-world Rust implementation.
-If users attempted to confirm the requested operation after a time treshold has passed (say, 1 hour), the operation is a no-op.
-This is not difficult to add in the implementation: one can just store the current time when the user requested the operation in an additional array, and compare it to the time when the user attempts to confirm the operation. But it is problematic in the specification: it is possible that the timelimit has not elapsed in the precondition (i.e. the specification), but that it has elapsed later when the JVM determines the current time in the method body.
+We also attempted to add a `timeout' mechanism, to cover the following aspect of the challenge:
+\begin{quote}
+If the provided code \emph{is one recently issued} then the corresponding operation (addition/removal) is finalised
+\end{quote}
+This is easy to add in the implementation: first store the time that the user requests the operation (in an additional array), and when confirming, only approve the operation if that time was sufficiently recent. But it is problematic for specification and verification: the timelimit may not yet have elapsed in the precondition (i.e. the specification), but it may have when the JVM determines the current time in the \verb|confirm| method body.
 So we dropped the timeout aspect.
 
 \paragraph{Map version}
