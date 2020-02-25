@@ -1,9 +1,13 @@
-public class KIMapImpl implements KIMap  {
+public class KIMapImpl implements KIMap__expanded  {
 
     private int count;
 
     private int[] keys;
     private int[] values;
+
+    //@ ghost \map gmap;
+
+    //@ represents mmap = gmap;
 
     //@ invariant keys.length > 0;
     //@ invariant keys.length == values.length;
@@ -12,10 +16,10 @@ public class KIMapImpl implements KIMap  {
     //@ invariant (\forall int i,j; 0 <= i && i < j && j < count; keys[i] != keys[j]);
 
     /*@ invariant (\forall int x; 
-      @                \dl_inDomain(m, x) 
+      @                \dl_inDomain(gmap, x) 
       @           <==> (\exists int j; 0<=j && j<count; keys[j] == x));
       @ invariant (\forall int j;  0 <= j && j < count;
-      @             \dl_mapGet(m, keys[j]) == values[j]);
+      @             \dl_mapGet(gmap, keys[j]) == values[j]);
       @*/
     
     /*@ invariant footprint == \set_union(
@@ -28,7 +32,7 @@ public class KIMapImpl implements KIMap  {
     // @        \all_fields(values), \all_fields(keys)));
     
     /*@ public normal_behaviour
-      @  ensures m == \dl_mapEmpty();
+      @  ensures mmap == \dl_mapEmpty();
       @  ensures \fresh(footprint);
       @  assignable \nothing;
       @*/
@@ -36,12 +40,12 @@ public class KIMapImpl implements KIMap  {
         this.count = 0;
         this.keys = new int[1024];
         this.values = new int[1024];
-        //@ set m = \dl_mapEmpty();
+        //@ set gmap = \dl_mapEmpty();
         /*@ set footprint = \set_union(
               \all_fields(this), \set_union(
               \all_fields(values), \all_fields(keys)));
-          */
-          {}
+        */
+        {}
     }
 
     /*@ normal_behavior
@@ -147,10 +151,10 @@ public class KIMapImpl implements KIMap  {
       @      ||  count == \old(count) + 1 && \result == count - 1;
       @  ensures keys[\result] == id && values[\result] == pkey;
       @  // preservation of the remaining entries
-      @  ensures m == \dl_mapUpdate(\old(m), id, pkey);
-      @  assignable keys[*], values[*], count, m;
+      @  ensures gmap == \dl_mapUpdate(\old(gmap), id, pkey);
+      @  assignable keys[*], values[*], count, gmap;
       @*/
-    public int add(int id, int pkey) {
+    private int add(int id, int pkey) {
         int pos = posOfId(id);
         
         if(pos < 0) {
@@ -161,7 +165,7 @@ public class KIMapImpl implements KIMap  {
         keys[pos] = id;
         values[pos] = pkey;
 
-        //@ set m = \dl_mapUpdate(m, id, pkey);
+        //@ set gmap = \dl_mapUpdate(gmap, id, pkey);
         
         return pos;
     }
@@ -182,7 +186,7 @@ public class KIMapImpl implements KIMap  {
                 values[pos] = values[count];
             }
             
-            //@ set m = \dl_mapRemove(m, id);
+            //@ set gmap = \dl_mapRemove(gmap, id);
             {}
         }        
     }

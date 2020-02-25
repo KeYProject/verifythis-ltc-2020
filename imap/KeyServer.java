@@ -3,46 +3,73 @@ public interface KeyServer {
 
     // @ public instance ghost \locset footprint;
 
-    /*@ instance ghost \map state;
-      @ instance ghost \map confAddEmail;
-      @ instance ghost \map confAddKey;
+    /*@ instance ghost \map keyStore;
+      @ instance ghost \map pendAddEmail;
+      @ instance ghost \map pendAddKey;
+      @ instance ghost \map pendDelEmail;
       @*/
 
-    /*@ instance invariant (\forall int token;
-      @   \dl_inDomain(confAddEmail, token) == \dl_inDomain(confAddKey, token));
+    /*@ public instance invariant (\forall int token;
+      @   \dl_inDomain(pendAddEmail, token) == \dl_inDomain(pendAddKey, token));
       @*/
     
     /*@ public normal_behaviour
-      @  ensures \result == \dl_inDomain(state, email);
+      @  ensures \result == \dl_inDomain(keyStore, email);
       @  assignable \strictly_nothing;
       @*/
     public boolean contains(int email);
     
     /*@ public normal_behaviour
-      @  requires \dl_inDomain(state, email);
-      @  ensures \result == \dl_mapGet(state, email);
+      @  requires \dl_inDomain(keyStore, email);
+      @  ensures \result == \dl_mapGet(keyStore, email);
       @  assignable \strictly_nothing;
       @*/
     public int get(int email);
-
     
     /*@ public normal_behaviour
       @  requires true;
-      @  ensures state == \old(state);
-      @  ensures confAddEmail == \dl_mapUpdate(\old(confAddEmail), \result, id);
-      @  ensures confAddKey == \dl_mapUpdate(\old(confAddKey), \result, pkey);
+      @  ensures keyStore == \old(keyStore);
+      @  ensures pendAddEmail == \dl_mapUpdate(\old(pendAddEmail), \result, id);
+      @  ensures pendAddKey == \dl_mapUpdate(\old(pendAddKey), \result, pkey);
+      @  ensures pendDelEmail == \old(pendDelEmail);
+      @  ensures !\dl_inDomain(\old(pendAddEmail), \result);
       @  // assignable footprint;
       @*/
     public int add(int id, int pkey);
     
     /*@ public normal_behavior
-      @  requires \dl_inDomain(confAddEmail, token);
-      @  ensures state == \dl_mapUpdate(\old(state), 
-      @     \dl_mapGet(confAddEmail, token), \dl_mapGet(confAddKey, token));
-      @  ensures confAddEmail == \dl_mapRemove(\old(confAddEmail), token);
-      @  ensures confAddKey == \dl_mapRemove(\old(confAddKey), token);
+      @  requires \dl_inDomain(pendAddEmail, token);
+      @  ensures keyStore == \dl_mapUpdate(\old(keyStore), 
+      @     \dl_mapGet(\old(pendAddEmail), token), 
+      @     \dl_mapGet(\old(pendAddKey), token));
+      @  ensures pendAddEmail == \dl_mapRemove(\old(pendAddEmail), token);
+      @  ensures pendAddKey == \dl_mapRemove(\old(pendAddKey), token);
+      @  ensures pendDelEmail == \old(pendDelEmail);
       @  // assignable footprint;
       @*/
     public void addConfirm(int token);
+   
+    /*@ public normal_behaviour
+      @  ensures keyStore == \old(keyStore);
+      @  ensures pendAddEmail == \old(pendAddEmail);
+      @  ensures pendAddKey == \old(pendAddKey);
+      @  ensures pendDelEmail == \dl_mapUpdate(\old(pendDelEmail), \result, id);
+      @  ensures !\dl_inDomain(\old(pendAddEmail), \result);
+      @  // assignable footprint;
+      @*/
+    public int del(int id);
+
+    /*@ public normal_behavior
+      @  requires \dl_inDomain(pendDelEmail, token);
+      @  ensures keyStore == \dl_mapRemove(\old(keyStore),
+      @     \dl_mapGet(\old(pendDelEmail), token));
+      @  ensures pendAddEmail == \old(pendAddEmail);
+      @  ensures pendAddKey == \old(pendAddKey);
+      @  ensures pendDelEmail == \dl_mapRemove(\old(pendDelEmail), token);
+      @  // assignable footprint;
+      @*/
+    public void delConfirm(int token);
+
+    
     
 }

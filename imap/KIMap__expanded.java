@@ -1,9 +1,8 @@
-public interface KIMap  {
-    //@ public instance ghost \free footprint;
+public interface KIMap__expanded  {
+    //@ public instance ghost \locset footprint;
     
-    //@ public instance model \map mmap;
-    //@  accessible mmap : footprint;
-   
+    /*@ public instance model \map mmap; */
+
     //@ accessible \inv : footprint;
 
     /*@
@@ -24,6 +23,7 @@ public interface KIMap  {
     /*@
       @ public normal_behavior 
       @  ensures mmap == \dl_mapUpdate(\old(mmap), key, value);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void put(int key, int value);
@@ -31,10 +31,10 @@ public interface KIMap  {
     /*@
       @ public normal_behavior 
       @  ensures mmap == \dl_mapRemove(\old(mmap), key);
+      @  ensures \new_elems_fresh(footprint);
       @  assignable footprint;
       @*/
     public void del(int key);
-
 
     /*@ public normal_behaviour
       @  ensures \result.mmap == \dl_mapEmpty();
@@ -42,11 +42,8 @@ public interface KIMap  {
       @  ensures \invariant_for(\result);
       @  assignable \nothing;
       @*/      
-    public static KIMap newMap() {
-        // It is a marker function only.
-        KeYInternal.UNFINISHED_PROOF();
-        throw new Error();
+    public static KIMap__expanded newMap() {
+        return new KIMapImpl();
     }
     
-
 }
