@@ -5,13 +5,14 @@
 \usepackage{booktabs}
 \usepackage{todonotes}
 \usepackage{wrapfig}
+\usepackage[backend=biber]{biblatex}
 \newcommand{\KeY}{Ke\kern-1ptY\xspace}
 
 \title{The \KeY Approach on Hagrid
   \\{\small VerifyThis Long-Term Challenge 2020 }}
-
 \author{ Stijn de Gouw \and Mattias Ulbrich \and Alexander Weigl }
 \institute{Open University \and Karlsruhe Institute of Technology}
+\newcommand{\myparagraph}[1]{\textbf{#1}\quad}
 \begin{document}
 \maketitle
 
@@ -38,44 +39,49 @@ and (relative) complete reasoning on Java programs. This reasoning requires that
 user-defined formal specification written in Java Modeling Language~\cite{Jml}.
 
 
-\section{Verification Subject}
-
+\section{Verification of the Subject}
+%
 \KeY supports Java and is not applicable on Rust source code; so
-re-implementation of HAGRID in Java was required. In summary we create two
+re-implementation of HAGRID in Java was required. In summary we created two
 different Java implementation: The first version uses only primitive data types
 and arrays. In the second version, we modularize the first version to use a map
 implementation. Both version are an abstraction of HAGRID as we focus on the
 database logic. In the implementation, we avoid the use of objects: The e-mail
 addresses and the keys are represented by integers. This also excludes the
 parsing of PGP keys and also excludes the handling of HTTP protocol.
+\todo{iterative approach}
 
 \paragraph{A simple email-key map.}
-
-The most basic version is a simplified implementation for the keyserver --
-verifiable without interactions in KeY, based on five integer arrays that store
-for each user:
+%
+The first version bases upon five integer arrays.
+These arrays store:
 %
 \begin{itemize}
-  \item the id/email of the user, represented currently by an integer
-  \item two arrays for confirmed and unconfirmed keys, and
-  \item an array that stores confirmation codes.
-  \item an array that stores which operation was most recently requested (the
-    implementation only allows to confirm that operation)
+  \item the email (identification) of the user
+  \item one array for confirmed and one array for unconfirmed keys
+  \item an array that stores confirmation codes, and
+  \item an array that stores which operation was most recently requested.
 \end{itemize}
 %
 The maximum number of users is fixed to 1024, as the arrays are never resized.
-The table below shows the main metrics:
+The implementation only allows to confirm last requested action, e.g. if a
+deletion is requested, a pending addition is abandoned.
 
-\begin{figure}
+We avoid the use of any objects to avoid dealing with a changes of the heap,
+resulting in a version that is verifiable without interactions in KeY. The
+Table~\ref{fig:numbers} shows the aggregated metrics of the proofs.
+
+\begin{figure}[t]
   \centering
-  \begin{tabular}{ |c|c|c| }
-    \hline
-    Lines of Code & Lines of Specs & Proof Steps \\
-    \hline
-    69 & 82 & 30.119 \\
-    \hline
+  \begin{tabular}{ lrrrr }
+    Version    & \#Code & \#Specs & \#Applied Rules &\#Proof Obl. \\
+    \toprule
+    Plain & 69 & 82 & 30.119 & 10 \\
+    Map-based & 146 & 262 & 77.663  & 40 \\
+    \bottomrule
   \end{tabular}
-  \caption{Verification in numbers}
+  \caption{Verification in numbers of lines of code, lines of specification,
+    applied rules, and proof obligations.}
   \label{fig:numbers}
 \end{figure}
 % proof stats:
@@ -87,14 +93,25 @@ The table below shows the main metrics:
 % posOfId: 2874
 
 
-We also attempted to add a `timeout' mechanism, to cover the following aspect of the challenge:
-\begin{quote}
-  If the provided code \emph{is one recently issued} then the corresponding operation (addition/removal) is finalised
-\end{quote}
-This is easy to add in the implementation: first store the time that the user requests the operation (in an additional array), and when confirming, only approve the operation if that time was sufficiently recent. But it is problematic for specification and verification: the timelimit may not yet have elapsed in the precondition (i.e. the specification), but it may have when the JVM determines the current time in the \verb|confirm| method body.
-So we dropped the timeout aspect.
+%i57pc4 ~/w/v/imap % grep 'Total rule apps' log | cut -d= -f2 | sed 's/,//g' | paste -s -d+ | bc
+%77663
 
-\paragraph{Map version}
+
+We also attempted to add a `timeout' mechanism, to cover the following aspect of
+the challenge:
+\begin{quote}
+  If the provided code \emph{is one recently issued} then the corresponding
+  operation (addition/removal) is finalised
+\end{quote}
+This is easy to add in the implementation: first store the time that the user
+requests the operation (in an additional array), and when confirming, only
+approve the operation if that time was sufficiently recent. But it is
+problematic for specification and verification: the timelimit may not yet have
+elapsed in the precondition (i.e. the specification), but it may have when the
+JVM determines the current time in the \verb|confirm| method body. So we dropped
+the timeout aspect.
+
+\paragraph{The map-based approach.}
 
 \begin{wrapfigure}[16]{R}{.5\textwidth}
   \centering
@@ -103,21 +120,32 @@ So we dropped the timeout aspect.
   \label{fig:umlclassdiagram}
 \end{wrapfigure}
 %
-The next version builds upon the generalization of the previous map structure.
-It is currently work in progress. This is a two-step process. The first step is
-a provable version using maps of int to int. This avoids working with the heap.
+The second version builds upon the generalization of the previous map structure,
+that are part of the first version.
 
-KIMap (Key Integer Map) is an interface representing a map of Int to Int. This
-functionality is bound to the behaviour of the map data type in KeY by JML
-specification. KIMapImpl is a simple implementation based upon two int arrays,
-one for the key, the other the values. KeyServerInt is a version of the backend
-of the verifying key server using integers as e-mail addresses and keys. The
-second step is to use Strings. This results into KSMap and KSMapImpl and also
-the KeyServerString.
+\texttt{KIMap} (Key Integer Map) is an interface representing a map of int to
+int. Its functionality is bound (by JML contracts) to the behavior of an
+abstract map data type in theories of KeY. \texttt{KIMapImpl} is a simple
+implementation based upon two int-arrays, one for the key, the other the values.
 %
+\texttt{KeyServer} is a version of the backend of the verifying key server using
+integers as e-mail addresses and keys providing the functionality to get, add,
+delete keys, and to confirm manipulative operations.
+%
+In contrast to the first version, an operation on an entry is not superseded by
+a new manipulation request. The last confirmed operation wins. Also, a previous
+requested deletion for an email-key pair $(e,k)$ can be used delete a different
+pair $(e,k')$ if there was a confirmed update for the key $k$ in between the
+deletion request and its confirmation.
+%
+Fig.~\ref{fig:umlclassdiagram} shows the classes.
+
+\todo{Ownership approach?}
 
 \iffalse
 @startuml
+hide circle
+skinparam classAttributeIconSize 0
 skinparam monochrome true
 skinparam shadowing false
 
@@ -147,20 +175,32 @@ class KIMap {
 }
 
 class KIMapImpl implements KIMap {
+    -int[] keys;
+    -int[] values;
 }
 @enduml
 \fi
 
-\section{Proofed Properties}
+\subsection*{Proofed Properties}
 
-what has been achieved (modelled and verified properties)
-
+We verified the software on a method-by-method.
+%
+This includes
+%
+This exclude the effect of multiple chained operations.
 
 \section{Conclusion }
 
-% .. successes and challenges encountered in the course of the case study.
+We verified abstraction of the key server based on integer.
+%
+A next goal would be the verification of an implementation which uses String
+values for the email and key. This also requires a new theory for strings and
+maps in \KeY.
+%
+%During the verification with \KeY we found some deficiencies in \KeY.
+%
 
-During the verification with \KeY we found some deficiencies: proving of heap
-dependent stuffs.
+
+
 
 \end{document}
