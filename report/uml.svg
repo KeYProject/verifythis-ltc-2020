@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="299px" preserveAspectRatio="none" style="width:414px;height:299px;" version="1.1" viewBox="0 0 414 299" width="414px" zoomAndPan="magnify"><defs/><g><!--MD5=[65a947a7e99e5cc3ead660400b7f7f0a]
+class KeyServer--><rect fill="#F8F8F8" height="116.7969" id="KeyServer" style="stroke: #383838; stroke-width: 1.5;" width="187" x="6" y="8"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="61" x="69" y="24.1387">KeyServer</text><line style="stroke: #383838; stroke-width: 1.5;" x1="7" x2="192" y1="31.9688" y2="31.9688"/><line style="stroke: #383838; stroke-width: 1.5;" x1="7" x2="192" y1="39.9688" y2="39.9688"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="175" x="12" y="54.1792">+contains(int email) : boolean;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="114" x="12" y="66.9839">+get(int email) : int;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="162" x="12" y="79.7886">+add(int email ,int key) : int;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="136" x="12" y="92.5933">+addConfirm(int token);</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="113" x="12" y="105.3979">+del(int email) : int;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="132" x="12" y="118.2026">+delConfirm(int token);</text><!--MD5=[0e92d302bd59d0ceba84c0f8a28bc67b]
+class KeyServerImpl--><rect fill="#F8F8F8" height="103.9922" id="KeyServerImpl" style="stroke: #383838; stroke-width: 1.5;" width="162" x="18.5" y="185"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="86" x="56.5" y="201.1387">KeyServerImpl</text><line style="stroke: #383838; stroke-width: 1.5;" x1="19.5" x2="179.5" y1="208.9688" y2="208.9688"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="97" x="24.5" y="223.1792">-KIMap mapKeys;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="150" x="24.5" y="235.9839">-KIMap mapPendAddEmail;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="139" x="24.5" y="248.7886">-KIMap mapPendAddKey;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="147" x="24.5" y="261.5933">-KIMap mapPendDelEmail;</text><line style="stroke: #383838; stroke-width: 1.5;" x1="19.5" x2="179.5" y1="268.1875" y2="268.1875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="99" x="24.5" y="282.3979">-newToken() : int;</text><!--MD5=[13d86b9fe578fba647fb9c22cd4e432e]
+class KIMap--><rect fill="#F8F8F8" height="91.1875" id="KIMap" style="stroke: #383838; stroke-width: 1.5;" width="175" x="228" y="21"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="36" x="297.5" y="37.1387">KIMap</text><line style="stroke: #383838; stroke-width: 1.5;" x1="229" x2="402" y1="44.9688" y2="44.9688"/><line style="stroke: #383838; stroke-width: 1.5;" x1="229" x2="402" y1="52.9688" y2="52.9688"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="163" x="234" y="67.1792">+contains(int key) : boolean;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="98" x="234" y="79.9839">+get(int key): int;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="132" x="234" y="92.7886">+put(int key, int value);</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="75" x="234" y="105.5933">+del(int key);</text><!--MD5=[c1a0de2c9a91ecf56e09e010770b547b]
+class KIMapImpl--><rect fill="#F8F8F8" height="65.5781" id="KIMapImpl" style="stroke: #383838; stroke-width: 1.5;" width="83" x="274" y="204"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="61" x="285" y="220.1387">KIMapImpl</text><line style="stroke: #383838; stroke-width: 1.5;" x1="275" x2="356" y1="227.9688" y2="227.9688"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="60" x="280" y="242.1792">-int[] keys;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="71" x="280" y="254.9839">-int[] values;</text><line style="stroke: #383838; stroke-width: 1.5;" x1="275" x2="356" y1="261.5781" y2="261.5781"/><!--MD5=[92561ce70ff197485708a21272d13c7d]
+reverse link KeyServer to KeyServerImpl--><path d="M99.5,145.155 C99.5,158.658 99.5,172.389 99.5,184.948 " fill="none" id="KeyServer&lt;-KeyServerImpl" style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="none" points="92.5001,145.017,99.5,125.017,106.5,145.017,92.5001,145.017" style="stroke: #383838; stroke-width: 1.0;"/><!--MD5=[4123e5b8397a5d5ba4b372852e3e9f3f]
+reverse link KIMap to KIMapImpl--><path d="M315.5,132.472 C315.5,156.948 315.5,183.718 315.5,203.9036 " fill="none" id="KIMap&lt;-KIMapImpl" style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="none" points="308.5,132.213,315.5,112.213,322.5,132.212,308.5,132.213" style="stroke: #383838; stroke-width: 1.0;"/><!--MD5=[a652c163362d1980bd75fa685bf63a9f]
+@startuml
+hide circle
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam shadowing false
+
+class KeyServer {
+    +contains(int email) : boolean;
+    +get(int email) : int;
+    +add(int email ,int key) : int;
+    +addConfirm(int token);
+    +del(int email) : int;
+    +delConfirm(int token);
+}
+
+class KeyServerImpl implements KeyServer {
+    -KIMap mapKeys; 
+    -KIMap mapPendAddEmail;
+    -KIMap mapPendAddKey;
+    -KIMap mapPendDelEmail;
+    -newToken() : int;
+}
+
+class KIMap {
+    +contains(int key) : boolean;
+    +get(int key): int;
+    +put(int key, int value);
+    +del(int key);
+
+}
+
+class KIMapImpl implements KIMap {
+    -int[] keys;
+    -int[] values;
+}
+@enduml
+
+PlantUML version 1.2020.02beta5(Unknown compile time)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Java Version: 1.7.0_25-b15
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
