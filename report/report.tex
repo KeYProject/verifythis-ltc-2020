@@ -18,38 +18,45 @@
 
 \section{Introduction}
 
-In this report we present the applied \KeY approach on the VerifyThis Long Term
-challenge 2020. Subject of the challenge was the HAGRID key server, a new
-implementation of the PGP server to make the key server conform to
-GDPR and resilient against DoS attacks.
+In this report we present the results of the application of the \KeY
+verification approach to the VerifyThis Long Term Challenge 2020 whose
+subject is the HAGRID key server, a new implementation of the PGP key
+server to make the key server conform to the General Data Protection
+Regulation (GDPR) and resilient against denial of service attacks.
 
 % 1. Motivation
 % 2. VerifyThis Challenge LTC
 % 3. Verification target
 
 
-\subsection{Introduction of the \KeY tool}
+% \subsection{Introduction of the \KeY tool}
 
-In its over 20 years of history, the \KeY-tool~\cite{KeyBook2} brings deductive
-verification to Java Programs with support for fully Java 1.4 and JavaCard
-\todo{version number} standard.
+\KeY~\cite{KeyBook2} is a deductive program verification tool to show
+the conformance of Java Programs to their specification in the Java
+Modeling Language (JML). It supports sequential Java 1.4 and the full
+JavaCard \todo{version number} standard.
 %
-The calculi behind \KeY is based on the sequent calculi, and provides a sound
-and (relative) complete reasoning on Java programs. This reasoning requires that
-user-defined formal specification written in Java Modeling Language~\cite{Jml}.
+The deductive enginge of \KeY is based on a sequent calculus for a
+dynamic logic for
+Java. % and provides a sound and (relative) complete reasoning
+% on Java programs. This reasoning requires that user-defined formal
+% specification written in Java Modeling Language~\cite{Jml}.
 
 
 \section{Verification of the Subject}
 %
-\KeY supports Java and is not applicable on Rust source code; so
-re-implementation of HAGRID in Java was required. In summary we created two
-different Java implementation: The first version uses only primitive data types
-and arrays. In the second version, we modularize the first version to use a map
-implementation. Both version are an abstraction of HAGRID as we focus on the
-database logic. In the implementation, we avoid the use of objects: The e-mail
-addresses and the keys are represented by integers. This also excludes the
-parsing of PGP keys and also excludes the handling of HTTP protocol.
-\todo{iterative approach}
+Since \KeY operates on Java programs, it cannot directly be used to
+verify HAGRID's Rust source code. A re-implementation of the central
+parts of the HAGRID key server in Java was required, hence.
+%
+We came up with two different Java implementations of which the first
+version is implemeted a single class that only makes use of primitive
+data types and arrays. The second version modularizes the first
+version and uses a map implementation. Both version are an abstraction
+of HAGRID as we focus on the database logic. In the implementation, we
+avoid the use of objects for the data: The e-mail addresses and the
+keys are represented by integers. This also excludes the parsing of
+PGP keys and the handling of HTTP protocol.  \todo{iterative approach}
 
 \paragraph{A simple email-key map.}
 %
@@ -187,7 +194,7 @@ We verified the software on a method-by-method.
 %
 This includes
 %
-This exclude the effect of multiple chained operations.
+This exclude the effect of multiple chained operations. \todo{MU: DId not understand}
 
 \section{Conclusion }
 
