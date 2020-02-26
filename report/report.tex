@@ -2,6 +2,8 @@
 
 \usepackage{microtype}
 \usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{todonotes}
 
 \newcommand{\KeY}{Ke\kern-1ptY\xspace}
 
@@ -15,32 +17,34 @@
 
 \section{Introduction}
 
-1. Motivation
+In this report we present the applied \KeY approach on the VerifyThis Long Term
+challenge 2020. Subject of the challenge was the HAGRID key server, a new
+implementation of the PGP server to make the key server conform to
+GDPR and resilient against DoS attacks.
 
-2. VerifyThis Challenge LTC
-
-3. Verification target 
-
-For 2020, the challenge system is the new, implementation of the PGP server
-infrastructure, called HAGRID [2]. The old implementation did not conform to
-GDPR and was known to be vulnerable against DoS attacks.
-    
-
-   % * ... the used verification approach and tools
-   %  * ... how the challenge was adapted to make verification possible
-   %    (abstractions, reimplementation, different behaviour)
-   %  * ... what has been achieved (modelled and verified properties)
-   %  * ... successes and challenges encountered in the course of the case
-   %    study.
-
-\section{Introduction of the \KeY tool}
-
-Deductive Verification of Java Programs; Supports Java 1.4 and JavaCard;
-ultimate precise tool; requires a lot of specification and effort but guarantees
-correctness;
+% 1. Motivation
+% 2. VerifyThis Challenge LTC
+% 3. Verification target
 
 
-\section{Re-implementation of Hagrid in Java}
+\subsection{Introduction of the \KeY tool}
+
+In its over 20 years of history, the \KeY-tool~\cite{KeyBook2} brings deductive
+verification to Java Programs with support for fully Java 1.4 and JavaCard
+\todo{version number} standard.
+%
+The calculi behind \KeY is based on the sequent calculi, and provides a sound
+and (relative) complete reasoning on Java programs. This reasoning requires that
+user-defined formal specification written in Java Modeling Language~\cite{Jml}.
+
+
+\section{Verification Subject}
+
+\KeY supports Java and is not applicable on Rust source code.
+%
+A re-implementation of HAGRID in Java was required.
+%
+As \KeY is
 
 how the challenge was adapted to make verification possible
 (abstractions, reimplementation, different behaviour)
@@ -117,5 +121,7 @@ what has been achieved (modelled and verified properties)
 \section{Conclusion }
 
 .. successes and challenges encountered in the course of the case study.
+
+
 
 \end{document}
