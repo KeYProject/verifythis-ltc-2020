@@ -40,7 +40,7 @@ show the conformance of Java Programs to their specification in the
 Java Modeling Language (JML). It supports sequential Java 1.4 and the
 full JavaCard \todo{version number} standard.
 %
-The deductive enginge of \KeY is based on a sequent calculus for a
+The deductive engine of \KeY is based on a sequent calculus for a
 dynamic logic for Java and supports both interactive and automatised
 verification.
 % and provides a sound and (relative) complete reasoning
@@ -79,7 +79,7 @@ particular, we avoid the use of objects for the data and represent
 them by primitive integer values.
 %
 This is of course a severe simplification, but since strings are
-objects in the java programming language, they produce significantly
+objects in the Java programming language, they produce significantly
 more difficult verification conditions due to additional heap framing
 conditions which need to be shown.
 
@@ -132,7 +132,7 @@ Table~\ref{fig:numbers} shows the aggregated metrics of the proofs.
 %77663
 
 
-We also attempted to add a `timeout' mechanism, to cover the following aspect of
+We also attempted to add a `time-out' mechanism, to cover the following aspect of
 the challenge:
 \begin{quote}
   If the provided code \emph{is one recently issued}, then the corresponding
@@ -142,10 +142,10 @@ This is easy to add in the implementation: first store the time that
 the user requests the operation (in an additional array), and when
 confirming, only approve the operation if that time was sufficiently
 recent. But it is problematic for specification and verification: the
-timelimit may not yet have elapsed when the precondition (i.e. the
+time limit may not yet have elapsed when the precondition (i.e. the
 specification) is evaluated, but it may have when the JVM determines
 the current time in the \verb|confirm| method body. So we dropped the
-timeout aspect.
+time-out aspect.
 
 \paragraph{The map-based approach.}
 
@@ -157,7 +157,7 @@ timeout aspect.
 \end{figure}
 %
 The second version follows the same design principles as the first
-one, but tries to achieve a more object-oriented, modular
+one, but aims to achieve a more object-oriented, modular
 architecture.  To this end, the key server now contains four map data
 structures for the stored keys, pending additions and pending
 deletions.
@@ -166,7 +166,7 @@ Fig.~\ref{fig:umlclassdiagram} gives an overview of the class layout.
 %
 The interface \texttt{KIMap} (Key Integer Map) represents a map of
 from \texttt{int} to \texttt{int}. Its functionality is specified (by
-JML contracts) usding the abstract map theory built into
+JML contracts) using the abstract map theory built into
 \KeY. \texttt{KIMapImpl} is a simple implementation based upon two
 \emph{int}-arrays (one for the keys and one for the values).
 %
@@ -174,7 +174,7 @@ JML contracts) usding the abstract map theory built into
 % using integers as e-mail addresses and keys
 providing the functionality to answer queries for keys, to process
 requests for key addition and deletion and to perform these
-manipulative operations upon confirmation. It is specified using a
+mutation operations upon confirmation. It is specified using a
 number of model fields containing (finite) logical maps.
 %
 % In contrast to the first version, an operation on an entry is not superseded by
@@ -227,7 +227,9 @@ class KIMapImpl implements KIMap {
 \section{Verification Results}
 
 We were able to verify strong functional method contracts for all
-methods of the implementations. They include the absence of runtime
+methods of the implementations. This includes verifying that requested
+operations are confirmed by the right confirmation code,
+absence of runtime
 exceptions and a guaranteed termination of each request handler.
 
 % We verified the software on a method-by-method.
