@@ -63,18 +63,18 @@ public class KeyServerImpl implements KeyServer {
         return token;
     }
 
+
     /*@ public normal_behaviour
       @  ensures !\dl_inDomain(pendAddEmail, \result);
       @  assignable \strictly_nothing;
       @*/
-    private String newToken() {       
+    private String newToken1() {       
         int token = Random.nextInt();
         //@ ghost \map decrDomain = pendAddEmail;
-        /*@ loop_invariant (\forall int t;
-          @    t >= token; \dl_inDomain(pendAddEmail, t) ==> \dl_inDomain(decrDomain, t));
+        /*@ loop_invariant (\forall int t; t >= token; \dl_inDomain(pendAddEmail, t) ==> \dl_inDomain(decrDomain, t));
           @ loop_invariant \dl_isFinite(decrDomain);
-          @  decreases \dl_mapSize(decrDomain);
-          @  assignable \strictly_nothing;
+          @ decreases \dl_mapSize(decrDomain);
+          @ assignable \strictly_nothing;
           @*/
         while(mapPendAddEmail.contains("" + token)) {
             //@ set decrDomain = \dl_mapRemove(decrDomain, token);

@@ -55,8 +55,7 @@ public class KSMapImpl implements KSMap__expanded  {
       @  requires newSize >= array.length;
       @  requires 0 <= count && count <= array.length;
       @  ensures \fresh(result);
-      @  ensures (\forall int i; 0 <= i && i < count; 
-      @              \result[i] == array[i]);
+      @  ensures (\forall int i; 0 <= i && i < count; \result[i] == array[i]);
       @  ensures \result.length == newSize;
       @  assignable \nothing;
       @  helper
