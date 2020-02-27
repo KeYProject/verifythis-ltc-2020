@@ -14,8 +14,11 @@ public class KSMapImpl implements KSMap__expanded  {
     //@ invariant keys != values;
     //@ invariant 0 <= count && count <= keys.length;
     //@ invariant (\forall int i,j; 0 <= i && i < j && j < count; keys[i] != keys[j]);
+    //@ invariant (\forall int i,j; 0 <= i && i < count && 0<=j && j < count; keys[i] != values[j]);
+    //@ invariant (\forall int i; 0 <= i && i < count; keys[i] != null && values[i]!=null);
+    
 
-    /*@ invariant (\forall int x; 
+    /*@ invariant (\forall String x; 
       @                \dl_inDomain(gmap, x) 
       @           <==> (\exists int j; 0<=j && j<count; keys[j] == x));
       @ invariant (\forall int j;  0 <= j && j < count;
@@ -63,6 +66,7 @@ public class KSMapImpl implements KSMap__expanded  {
         /*@ loop_invariant 0 <= i && i <= count;
           @ loop_invariant (\forall int j; 0 <= j && j < i;
           @   newArray[j] == array[j]);
+          @ loop_invariant (newArray != array);
           @ assignable newArray[*];
           @ decreases array.length - i;
           @*/
@@ -94,12 +98,12 @@ public class KSMapImpl implements KSMap__expanded  {
     /*@ normal_behaviour 
       @  requires true;
       @  ensures \result >= -1;
-      @  ensures \result < 0 ==> (\forall int i; 0 <= i && i < count; keys[i] != id);
-      @  ensures \result >= 0 ==> (keys[\result] == id && \result < count);
+      @  ensures \result < 0 ==> (\forall int i; 0 <= i && i < count; !keys[i].equals(id));
+      @  ensures \result >= 0 ==> (keys[\result].equals(id) && \result < count);
       @  assignable \strictly_nothing; 
       @*/    
     private int posOfId(String id) {
-        /*@ loop_invariant (\forall int k; 0 <= k && k < i; keys[k] != id);
+        /*@ loop_invariant (\forall int k; 0 <= k && k < i; !keys[k].equals(id));
           @ loop_invariant 0 <= i && i <= count;
           @ 
           @ decreases keys.length - i; 
@@ -116,7 +120,7 @@ public class KSMapImpl implements KSMap__expanded  {
 
     /*@
       @ public normal_behavior 
-      @  ensures \result == (\exists int i; 0 <= i && i < count; keys[i] == key);
+      @  ensures \result == (\exists int i; 0 <= i && i < count; keys[i].equals(key));
       @  assignable \strictly_nothing;
       @*/
     public boolean contains(String key) {
@@ -126,12 +130,12 @@ public class KSMapImpl implements KSMap__expanded  {
 
     
     /*@ public normal_behaviour
-      @  requires (\exists int i; 0 <= i && i < count; keys[i] == id);
-      @  ensures (\exists int i; 0 <= i && i < count; \result == values[i] && keys[i] == id);
+      @  requires (\exists int i; 0 <= i && i < count; keys[i].equals(id));
+      @  ensures (\exists int i; 0 <= i && i < count; \result.equals(values[i]) && keys[i].equals(id));
       @  assignable \strictly_nothing;
       @
       @ also public exceptional_behavior       
-      @  requires (\forall int i; 0 <= i && i < count; keys[i] != id); 
+      @  requires (\forall int i; 0 <= i && i < count; !keys[i].equals(id)); 
       @  signals (IllegalArgumentException e) true;
       @  assignable \nothing;
       @*/
@@ -149,7 +153,7 @@ public class KSMapImpl implements KSMap__expanded  {
       @  ensures 0 <= \result;
       @  ensures count == \old(count) && \result < count
       @      ||  count == \old(count) + 1 && \result == count - 1;
-      @  ensures keys[\result] == id && values[\result] == pkey;
+      @  ensures keys[\result].equals(id) && values[\result].equals(pkey);
       @  // preservation of the remaining entries
       @  ensures gmap == \dl_mapUpdate(\old(gmap), id, pkey);
       @  assignable keys[*], values[*], count, gmap;

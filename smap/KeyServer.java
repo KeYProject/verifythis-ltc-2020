@@ -9,7 +9,7 @@ public interface KeyServer {
       @ instance ghost \map pendDelEmail;
       @*/
 
-    /*@ public instance invariant (\forall int token;
+    /*@ public instance invariant (\forall String token;
       @   \dl_inDomain(pendAddEmail, token) == \dl_inDomain(pendAddKey, token));
       @*/
     
