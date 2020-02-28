@@ -1,5 +1,8 @@
 \documentclass{llncs}
 
+
+\usepackage{hyperref}
+\usepackage{url}
 \usepackage{microtype}
 \usepackage{xspace}
 \usepackage{booktabs}
@@ -38,7 +41,7 @@ approach to the VerifyThis Long Term Challenge 2020.
 \KeY~\cite{KeYBook2} is a deductive program verification engine to
 show the conformance of Java Programs to their specification in the
 Java Modeling Language (JML). It supports sequential Java 1.4 and the
-full JavaCard \todo{version number} standard.
+full JavaCard~3.0 standard.
 %
 The deductive engine of \KeY is based on a sequent calculus for a
 dynamic logic for Java and supports both interactive and automatised
@@ -62,7 +65,7 @@ server in Java had to be written.
 We came up with two different Java implementations of different
 complexity.
 %
-Both adhere to the natural language specifications in~\cite{LTC-dok}
+Both adhere to the natural language specifications in~\cite{ltcDescr}
 %
 The first version implements a single class that only
 makes use of primitive data types and arrays. The second version
@@ -70,7 +73,7 @@ modularizes the first version and uses an implementation of a map data
 structure. Both versions are abstractions of HAGRID's implementation
 and actual behaviour. We focus on the database logic and leave network
 connection, and en- and de-coding of HTTP messages aside for this
-project. \todo{iterative approach. MU: I did not understand that.}
+project. %\todo{iterative approach. MU: I did not understand that.}
 %
 Moreover, in the implementation, we assume that e-mail addresses and
 keys are ``atomic'' in the sense that they are used as keys and values
@@ -183,8 +186,6 @@ number of model fields containing (finite) logical maps.
 % pair $(e,k')$ if there was a confirmed update for the key $k$ in between the
 % deletion request and its confirmation.
 
-\todo{Ownership approach?}
-
 \iffalse
 @startuml
 hide circle
@@ -237,6 +238,12 @@ exceptions and a guaranteed termination of each request handler.
 % This includes
 % %
 % This exclude the effect of multiple chained operations. \todo{MU: DId not understand}
+
+We noticed during the verification of the modular map approach that
+discharging the framing conditions brought the \KeY on the edge of its
+capabilities. In the following, we devised a new technique to deal
+with framing conditions that combines dynamic frames with aspects from
+ownership. This allowed us to close all proofs successfully.
 
 
 Both implementations used integers instead of Strings as an
