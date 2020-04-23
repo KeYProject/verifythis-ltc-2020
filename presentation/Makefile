@@ -1,5 +1,5 @@
 
-slides.pdf: slides.tex imap.pdf imap_partial.pdf
+slides.pdf: slides.tex imap.pdf imap_partial.pdf heap/overlay.tex
 	latexmk -pdf slides
 
 %.svg: %.plantuml
@@ -8,3 +8,5 @@ slides.pdf: slides.tex imap.pdf imap_partial.pdf
 %.pdf: %.svg
 	inkscape -A $@ $<
 
+heap/overlay.tex: heap.svg
+	./export_overlays $<

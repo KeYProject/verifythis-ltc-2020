@@ -6,14 +6,15 @@
 \usepackage{tikz}
 \usepackage{hyperref}
 
-%OL%\newcommand{\titleimage}{KeYBeamer2}
-%OL%\usetheme{kit}
+% OL%
+\usetheme{loosekit}
 \beamertemplatenavigationsymbolsempty
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
 
+\usetikzlibrary{shapes.misc}
 
 \newcommand{\KeY}{Ke\kern-.1em Y}
 \newcommand{\kit}[1]{\textcolor{kit-green100}{#1}}
@@ -36,7 +37,7 @@
   keywordstyle=\color{blue},       % keyword style
   language=Java,                 % the language of the code
   alsoletter={\\},
-  morekeywords={*,invariant,\\forall,requires,ensures,normal_behaviour,ghost,\\old,\\result,assignable},            % if you want to add more keywords to the set
+  morekeywords={*,invariant,\\forall,requires,ensures,normal_behaviour,ghost,model,\\old,\\result,assignable,\\in,accessible},            % if you want to add more keywords to the set
   %numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
   numbersep=5pt,                   % how far the line-numbers are from the code
   %numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
@@ -55,6 +56,8 @@
 
 \title{The \KeY-verified Verified Keyserver}
 
+\subtitle{VerifyThis Long Term Challenge}
+
 \date{27 April 2020}
 \author[de Gouw, Ulbrich, Weigl]%
   {Stijn de Gouw (Open University, NL),
@@ -64,7 +67,7 @@
 
 \begin{document}
 
-%OL%\selectlanguage{english}
+% OL%\selectlanguage{english}
 
 \begin{frame}
 \titlepage
@@ -162,7 +165,7 @@ invariant codes != unconfirmedKeys && codes != requestType;
 invariant unconfirmedKeys != requestType;\end{lstlisting}
   \end{block}
   \vspace{-1em}
-  \begin{block}{\small All arrays are non-null and have the same length (the # users)}
+  \begin{block}{\small All arrays are non-null and have the same length (\# of users)}
 \begin{lstlisting}
 invariant emails != null && keys != null && codes != null;
 invariant unconfirmedKeys != null && requestType != null;
@@ -188,7 +191,7 @@ invariant (\forall int i,j ;
     \frametitle{The array model: a method contract}
     \begin{block}{Informal Contract: \texttt{add(Email, PublicKey)}}
       Stores request to add the given key for the specified user. The key still
-      needs to be confirmed with \texttt{#addConfirm(Email, Token)}. Does nothing if
+      needs to be confirmed with \texttt{\#addConfirm(Email, Token)}. Does nothing if
       the specified user does not exist.
      
     \begin{itemize}
@@ -236,58 +239,149 @@ public int addRequest(int id, int pkey) { ...
 \end{frame}
 
 
+%%
+%% -- the map model --
+%%
+
+\lstset {
+  basicstyle=\footnotesize\ttfamily,
+}
+
 \begin{frame}
   \frametitle{The map model}
   \centering  \includegraphics[height=.9\textheight]{imap}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{The map model}
+  \frametitle{Confirming a new key}
+
+Original syntax: 
 \begin{lstlisting}
-     /*@ public normal_behaviour
-       @  requires true;
-       @  ensures keyStore == \old(keyStore);
-       @  ensures pendAddEmail == \dl_mapUpdate(\old(pendAddEmail), \result, id);
-       @  ensures pendAddKey == \dl_mapUpdate(\old(pendAddKey), \result, pkey);
-       @  ensures pendDelEmail == \old(pendDelEmail);
-       @  ensures !\dl_inDomain(\old(pendAddEmail), \result);
-       @  assignable footprint;
-       @*/
-    public int add(int id, int pkey);
+/*@ public normal_behavior
+  @  requires \dl_inDomain(pendAddEmail, token);
+  @  ensures keyStore == 
+  @   \dl_mapUpdate(\old(keyStore), 
+  @      \dl_mapGet(\old(pendAddEmail), token), 
+  @      \dl_mapGet(\old(pendAddKey), token));
+  @  ensures pendAddEmail == 
+  @   \dl_mapRemove(\old(pendAddEmail), token);
+  @  ensures pendAddKey == 
+  @   \dl_mapRemove(\old(pendAddKey), token);
+  @  ensures pendDelEmail == \old(pendDelEmail);
+  @  assignable footprint;
+  @*/
+public void addConfirm(int token);
 \end{lstlisting}
 \end{frame}
 
 
 \begin{frame}[fragile]
-  \frametitle{The map model}
-\begin{lstlisting}[mathescape=true]
-/*@ public normal_behaviour
-  @  requires true;
-  @  ensures keyStore == \old(keyStore);
-  @  ensures pendAddEmail == \old(pendAddEmail)[\result := id];
-  @  ensures pendAddKey == \old(pendAddKey)[\result := pkey];
+  \frametitle{Confirming a new key}
+  More mathematical syntax:
+\begin{lstlisting}
+/*@ public normal_behavior
+  @  requires token \in pendAddEmail;
+  @
+  @  ensures keyStore == \old(keyStore)[
+  @    \old(pendAddEmail)[token] <-
+  @    \old(pendAddKey)[token]];
+  @
+  @  ensures pendAddEmail == \old(pendAddEmail) - token;
+  @
+  @  ensures pendAddKey == \old(pendAddKey) - token;
+  @
   @  ensures pendDelEmail == \old(pendDelEmail);
-  @  ensures !\result \in \old(pendAddEmail);
+  @ 
   @  assignable footprint;
   @*/
-public int add(int id, int pkey);
+public void addConfirm(int token);
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}[fragile]{The map model: Connection between ghost fields and implementation fields}
-\includegraphics[width=7cm]{imap_partial}  
-  
+\begin{frame}[fragile]{Connecting ghosts and implementation}
+\vspace{4.5cm}
+
 \begin{lstlisting}
 interface KeyServer {
-  //@ ghost \map keyStore;      /*...*/ 
-}
+    ghost \map keyStore; /*...*/ }
 
 class KeyServerImpl implements KeyServer {
     KIMap mapKeys = KIMap.newMap();
-//@ invariant mapKeys.<inv>;
-//@ invariant keyStore == mapKeys.mmap;
+    invariant mapKeys.<inv>;
+    invariant keyStore == mapKeys.mmap; /*...*/}
+\end{lstlisting}
+\tikz[overlay] \node at (7.5,5.5) {\includegraphics[width=7.5cm]{imap_partial}};
+\vspace{10cm}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dynamic Frames -- ``Singularities''}
+  \begin{alertblock}{}
+    \centering Proofs cannot be conducted due to framing problems.
+  \end{alertblock}
+  \vspace{20cm}
+  \include{heap/overlay}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Singularities}
+  ~
+  \vfill
+  
+  \begin{minipage}{.7\linewidth}
+    \begin{block}{Original class}
+\begin{lstlisting}
+interface Map {
+ //@ ghost \locset footprint;
+
+ //@ model \map mmap;
+
+ /*@ ensures \result == mmap[k];
+   @ accessible footprint; */
+ int get(int k) {...}
+
+ /*@ ensures mmap == \old(mmap)[k<-v];
+   @ assignable footprint; */
+  int get(int k, int v) {...}
 }
 \end{lstlisting}
+    \end{block}
+  \end{minipage}
+  
+  \tikz[overlay] \node at (8.8,5) {
+    \begin{minipage}{.49\linewidth}
+      \begin{exampleblock}<2->{Singularity replacement}
+\begin{lstlisting}
+interface Map {
+ //@ ghost \free footprint;
+
+  ... copy the rest
+\end{lstlisting}
+        \texttt{\char`\\ free} is uninterpreted sort \\
+        ``footprint'' captures the ``state''
+      \end{exampleblock}
+    \end{minipage}};
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize} \itemsep3ex
+  \item \emph{we presented two models:} \\
+    one automatic, one pretty interactive
+  \item Limitations and open challenges:
+    \begin{itemize}
+    \item integers instead of strings ($\to$ thesis @ KIT)
+    \item linear maps, not hash maps ($\to$ thesis @ OU)
+    \item framing, singularities ($\to$ thesis @ KIT)
+    \end{itemize}
+  \item Long-term goals:
+    \begin{itemize}
+    \item Specify and verify secure information flow (using \KeY)
+    \end{itemize}
+  \end{itemize}
 \end{frame}
 
 
