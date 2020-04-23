@@ -1,0 +1,43 @@
+@startuml
+hide circle
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam shadowing false
+
+interface KeyServer {
+    +contains(int email) : boolean;
+    +get(int email) : int;
+    +add(int email, int key) : int;
+    +addConfirm(int token);
+    +del(int email) : int;
+    +delConfirm(int token);
+}
+
+KeyServer -right-> Map : keyStore
+
+
+class Map << ADT >>
+hide Map members
+'note right: for ghost fields
+
+class KeyServerImpl implements KeyServer {
+'    -KIMap mapKeys; 
+'    -KIMap mapPendAddEmail;
+'    -KIMap mapPendAddKey;
+'    -KIMap mapPendDelEmail;
+    -newToken() : int;
+}
+
+KeyServerImpl -right-> KIMap : mapKeys
+
+class KIMap {
+    +contains(int key) : boolean;
+    +get(int key): int;
+    +put(int key, int value);
+    +del(int key);
+}
+'note top: for implementation
+
+KIMap -up-> Map : mmap
+
+@enduml
