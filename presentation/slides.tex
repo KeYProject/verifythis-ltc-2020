@@ -1,0 +1,81 @@
+\documentclass{beamer}
+
+\usepackage{tikz}
+\newcommand{\titleimage}{KeYBeamer2}
+
+\usetheme{kit}
+\beamertemplatenavigationsymbolsempty
+
+\newcommand{\KeY}{Ke\kern-.1em Y}
+\newcommand{\kit}[1]{\textcolor{kit-green100}{#1}}
+\newcommand{\kitblue}[1]{\textcolor{kit-blue100}{#1}}
+
+\title{The \KeY-verified Verified Keyserver}
+
+\date{27 April 2020}
+\author[de Gouw, Ulbrich, Weigl]{Stijn de Gouw (Open University, NL),
+  Mattias Ulbrich, Alexander Weigl}
+
+\institute{Institute for Theoretical Informatics}
+
+\begin{document}
+
+\selectlanguage{english}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Our program verifier \KeY}
+  \vspace{-1.5cm}
+  \begin{center}
+    \begin{tikzpicture}
+      \node at (0,0) { \includegraphics[height=8cm]{key} };
+      \node at (-2.5,2.5) {\large Deductive verification};
+      \node[text width=3cm] at (-4.5,.5) {\large Java Modeling\\Language (JML)};
+      \node[text width=3cm] at (4,-1.5) {\large Modular\\Reasoning};
+      \node at (-3.5,-1.5) {\large User Interaction Concepts};
+      \node at (2,2.5) {\large 100\% Java Card};
+      \node at (-2,-2.5) {\large Test case generation};
+      \node at (2,-3) {\large Secure Information Flow};
+      \node at (0,-4) {\footnotesize collaboration with
+        TU Darmstadt and Chalmers University, Gothenburg};
+    \end{tikzpicture}
+  \end{center}\vspace{-1ex}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Modelling HAGRID in \KeY}
+
+  We present two formalisations of the HAGRID framework as spec'ed and
+  verif'ed Java implementations:
+  \pause
+  
+  \begin{block}{The \textbf{automatic} model}
+%  \footnotesize
+    \begin{itemize}
+    \item uses arrays to implement database and open requests
+    \item specification on these arrays
+    \item 70 loc, 90 los, 10 POs, \textbf{fully automatic}
+    \end{itemize}
+  \end{block}
+
+  \only<1-2>{\it\footnotesize loc/los = lines of code/spec, POs = \# of
+    proof obligations}
+    
+  
+  \pause
+  \begin{exampleblock}{The \textbf{map} model}
+%  \footnotesize
+  \begin{itemize}
+    \item uses map data structures to implement database and open requests
+    \item specification on ADT maps
+    \item ``object singularities''
+    \item 146 loc, 262 los, 40 POs, \textbf{89 interactions}
+    \end{itemize}
+  \end{exampleblock}
+  % \tikz[overlay, text width=10cm] \node at (11.7,2) {\it\footnotesize loc/los = lines of code/spec\\POs = \# of proof obligations};
+  
+\end{frame}
+
+\end{document}
