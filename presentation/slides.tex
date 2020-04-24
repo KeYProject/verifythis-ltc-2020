@@ -1,13 +1,14 @@
 \documentclass{beamer}
 
+\usepackage{anyfontsize}
 \usepackage{listings}
 \usepackage{color}
 \usepackage{inconsolata}
 \usepackage{tikz}
 \usepackage{hyperref}
-
+\usepackage{textpos}
 % OL%
-\usetheme{loosekit}
+%\usetheme{loosekit}
 \beamertemplatenavigationsymbolsempty
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
@@ -27,9 +28,9 @@
   breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
   breaklines=true,                 % sets automatic line breaking
   captionpos=b,                    % sets the caption-position to bottom
-  commentstyle=\color{mygreen},    % comment style
+  commentstyle=\color{green},    % comment style
   deletekeywords={...},            % if you want to delete keywords from the given language
-  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  escapeinside={@*}{*@)},          % if you want to add LaTeX within your code
   extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
   %firstnumber=1000,                % start line enumeration with line 1000
   frame=single,	                   % adds a frame around the code
@@ -41,10 +42,10 @@
   %numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
   numbersep=5pt,                   % how far the line-numbers are from the code
   %numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
-  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
-  %showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
-  %showstringspaces=false,          % underline spaces within strings only
-  %showtabs=false,                  % show tabs within strings adding particular underscores
+  rulecolor=\color{blue},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
   %stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
   %stringstyle=\color{mymauve},     % string literal style
   %tabsize=2,	                   % sets default tabsize to 2 spaces
@@ -125,9 +126,9 @@
   
 \end{frame}
 
-\section{The array model: The class }
+\section{Array Model: Class Overview}
 \begin{frame}
-    \frametitle{The array model}
+    \frametitle{Array model}
     \begin{columns}
     \begin{column}{.4\textwidth}
         \includegraphics[width=\textwidth]{simplified_uml.pdf}
@@ -153,7 +154,7 @@
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{The array model: Invariants}
+    \frametitle{Array Model: Invariants}
     
   \begin{block}{\small ruling out aliasing}
     \begin{lstlisting}
@@ -174,12 +175,12 @@ invariant codes.length == MAXUSERS && unconfirmedKeys.length == MAXUSERS;
 invariant requestType.length == MAXUSERS;\end{lstlisting}
   \end{block}
   \vspace{-1em}
-  \begin{block}{\small number of users is bounded}
+  \begin{block}{\small Number of users is bounded}
 \begin{lstlisting}
 invariant 0 <= count && count <= MAXUSERS;\end{lstlisting}
   \end{block}
   \vspace{-1em}
-\begin{block}{\small emails are unique}
+\begin{block}{\small Emails are unique}
 \begin{lstlisting}  
 invariant (\forall int i,j ; 
                 0 <= i && i < j && j < count; 
@@ -187,9 +188,16 @@ invariant (\forall int i,j ;
   \end{block}
 \end{frame}
 
+
+
+\lstset {
+  basicstyle=\fontsize{7.2}{8.64}\ttfamily,
+}
+
+
 \begin{frame}[fragile]
-    \frametitle{The array model: a method contract}
-    \begin{block}{Informal Contract: \texttt{add(Email, PublicKey)}}
+    \frametitle{Array Model: Method Contract}
+    \begin{block}{Informal Contract: \texttt{addRequest(Email, PublicKey)}}
       Stores request to add the given key for the specified user. The key still
       needs to be confirmed with \texttt{\#addConfirm(Email, Token)}. Does nothing if
       the specified user does not exist.
@@ -201,40 +209,49 @@ invariant (\forall int i,j ;
     \end{itemize}
      
     \end{block}
-    
-    \begin{lstlisting}
-    public int addRequest(int id, int pkey) {
-        int pos = posOfId(id);  // find the entry in the current
-        if(pos < 0) { pos = count++; } // not found, use an empty entry
-        emails[pos] = id;
-        codes[pos] = random(); 
-        unconfirmedKeys[pos] = pkey;
-        requestType[pos] = REQUESTTYPE_ADD;
-        return pos;
-    }
-    \end{lstlisting}
+
+    \newcommand{\nlc}[1]{\textcolor{green!60!black}{// #1}}
+
+    \begin{lstlisting}[escapechar=@]
+public int addRequest(int id, int pkey) {
+  int pos = posOfId(id);               @ \nlc{find the entry in the current} @
+  if(pos < 0) { pos = count++; }       @ \nlc{not found, use an empty entry}  @
+  emails[pos] = id;                    @ \nlc{store user's email}@
+  codes[pos] = random();               @ \nlc{generate/store the auth. token}@
+  unconfirmedKeys[pos] = pkey;         @ \nlc{store the key in a additional list}@
+  requestType[pos] = REQUEST_TYPE_ADD; @ \nlc{entry is an addition} @
+  return pos;                          @ \nlc{! return the \textbf{position} of the entry} @
+}\end{lstlisting}
+
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{The array model: \texttt{addConfirm}}
+    \frametitle{Array model: \texttt{addRequest}}
 \begin{lstlisting}
-public normal_behaviour
-requires count < MAXUSERS;      // internal capacity limit not reached
-ensures 0 <= \result;           
-ensures count == \old(count) && \result < count
-     ||  count == \old(count) + 1 && \result == count - 1;
-ensures emails[\result] == id && unconfirmedKeys[\result] == pkey && codes[\result]>0;
-ensures requestType[\result] == REQUESTTYPE_ADD;
+/*@ public normal_behaviour
 
-// preservation of the other entries
-ensures (\forall int i; 0<=i && i<count;
+  @ requires count < MAX USERS;
+  
+  @ ensures 0 <= \result;
+
+  @ ensures count == \old(count) && \result < count
+        ||  count == \old(count) + 1 && \result == count - 1;
+
+  @ ensures emails[\result] == id && unconfirmedKeys[\result] == pkey
+            && codes[\result]>0;
+
+  @ ensures requestType[\result] == REQUESTTYPE_ADD;
+
+  @ ensures (\forall int i; 0<=i && i<count;
              (emails[i] == (i == \result ? id : \old(emails[i])))
-           && (unconfirmedKeys[i] == (i == \result ? pkey : \old(unconfirmedKeys[i])))
-           && (i != \result ==> (codes[i] == \old(codes[i])))
-           && (i != \result ==> (requestType[i] == \old(requestType[i]))));
-assignable emails[*], unconfirmedKeys[*], codes[*], requestType[*], count;
+     && (unconfirmedKeys[i] ==
+                 (i == \result ? pkey : \old(unconfirmedKeys[i])))
+     && (i != \result ==> (codes[i] == \old(codes[i])))
+     && (i != \result ==> (requestType[i] == \old(requestType[i]))));
 
-public int addRequest(int id, int pkey) { ...
+  @ assignable emails[*], unconfirmedKeys[*],
+               codes[*],  requestType[*],     count;
+*/
 \end{lstlisting}
 \end{frame}
 

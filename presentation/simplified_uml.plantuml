@@ -1,0 +1,26 @@
+@startuml
+hide circle
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam shadowing false
+
+class KeyServer {
+
+    -MAXUSERS: int
+    -emails  : Email[] 
+    -keys : PublicKey[] 
+    -codes : Token[] 
+    -unconfirmedKeys  : PublicKey[] 
+    -requestType : int[] 
+    -int count
+    -{static} int REQUEST_TYPE_ADD
+    -{static} int REQUEST_TYPE_REMOVE
+
+    +get(email) : PublicKey
+    +addRequest(email, int pkey) : Token
+    +addConfirm(email, Token) 
+    +delRequest(email) : Token
+    +delConfirm(email, Token)
+}
+
+@enduml
