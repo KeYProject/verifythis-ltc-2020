@@ -6,9 +6,9 @@
 \usepackage{inconsolata}
 \usepackage{tikz}
 \usepackage{hyperref}
-\usepackage{textpos}
+%\usepackage{textpos}
 % OL%
-%\usetheme{loosekit}
+\usetheme{loosekit}
 \beamertemplatenavigationsymbolsempty
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
@@ -30,7 +30,7 @@
   captionpos=b,                    % sets the caption-position to bottom
   commentstyle=\color{green},    % comment style
   deletekeywords={...},            % if you want to delete keywords from the given language
-  escapeinside={@*}{*@)},          % if you want to add LaTeX within your code
+  %escapeinside={@*}{*@)},          % if you want to add LaTeX within your code
   extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
   %firstnumber=1000,                % start line enumeration with line 1000
   frame=single,	                   % adds a frame around the code
@@ -227,6 +227,9 @@ public int addRequest(int id, int pkey) {
 
 \begin{frame}[fragile]
     \frametitle{Array model: \texttt{addRequest}}
+    \vspace{-1em}
+    \begin{exampleblock}{Formal contract:}
+    \vspace{-.5em}
 \begin{lstlisting}
 /*@ public normal_behaviour
 
@@ -253,6 +256,7 @@ public int addRequest(int id, int pkey) {
                codes[*],  requestType[*],     count;
 */
 \end{lstlisting}
+\end{exampleblock}
 \end{frame}
 
 
