@@ -157,6 +157,7 @@
     \frametitle{Array Model: Invariants}
     
   \begin{block}{\small ruling out aliasing}
+    \vspace{-.5em}
     \begin{lstlisting}
 invariant emails != keys && emails != codes && emails != unconfirmedKeys;
 invariant emails != requestType;
@@ -167,7 +168,8 @@ invariant unconfirmedKeys != requestType;\end{lstlisting}
   \end{block}
   \vspace{-1em}
   \begin{block}{\small All arrays are non-null and have the same length (\# of users)}
-\begin{lstlisting}
+  \vspace{-.5em}
+  \begin{lstlisting}
 invariant emails != null && keys != null && codes != null;
 invariant unconfirmedKeys != null && requestType != null;
 invariant emails.length == MAXUSERS && keys.length == MAXUSERS;
@@ -176,11 +178,13 @@ invariant requestType.length == MAXUSERS;\end{lstlisting}
   \end{block}
   \vspace{-1em}
   \begin{block}{\small Number of users is bounded}
+  \vspace{-.5em}
 \begin{lstlisting}
 invariant 0 <= count && count <= MAXUSERS;\end{lstlisting}
   \end{block}
   \vspace{-1em}
 \begin{block}{\small Emails are unique}
+  \vspace{-.5em}
 \begin{lstlisting}  
 invariant (\forall int i,j ; 
                 0 <= i && i < j && j < count; 
@@ -401,7 +405,11 @@ interface Map {
   \item Long-term goals:
     \begin{itemize}
     \item Specify and verify secure information flow (using \KeY)
+    \item Verified data structure library for Java
     \end{itemize}
+    \item Spin-off: \emph{ci-tool} for support of KeY in Continous Integration
+     pipelines. \small
+    \texttt{https://key-project.org/ci-tool/}
   \end{itemize}
 \end{frame}
 
