@@ -128,28 +128,29 @@
 
 \section{Array Model: Class Overview}
 \begin{frame}
-    \frametitle{Array model}
+    \frametitle{Array Model: Overview}
     \begin{columns}
-    \begin{column}{.4\textwidth}
-        \includegraphics[width=\textwidth]{simplified_uml.pdf}
-    \end{column}
-    \begin{column}{.6\textwidth}
+      \begin{column}{.7\textwidth}
         \begin{itemize}
-            \item Backend of Hagrid
-            \begin{itemize}
-                \item retrieving of public keys
-                \item verified adding of entries
-                \item verified deletion of entries
-            \end{itemize}
-            \item Simplifications
-            \begin{itemize}
-                \item All data types are (array of) \texttt{int}'s.
-                \item Maps are represented by a key/value array.
-            \end{itemize}
-            \item \href{https://github.com/KeYProject/verifythis-ltc-2020/blob/master/simplified/Keyserver.java}%
-                        {simplified/Keyserver.java}
+          \item Backend of a Verifying Keyserver
+          \begin{itemize}
+            \item retrieving of public keys
+            \item \emph{verified} adding of entries
+            \item \emph{verified} deletion of entries
+          \end{itemize}
+          \item Simplifications
+          \begin{itemize}
+            \item All data types are (array of) \texttt{int}'s.
+            \item In memory map-like storage
+            \item Maps are represented \\by a key and value array.
+          \end{itemize}
+          \item \href{https://github.com/KeYProject/verifythis-ltc-2020/blob/master/simplified/Keyserver.java}%
+          {simplified/Keyserver.java}
         \end{itemize}
-    \end{column}
+      \end{column}
+      \begin{column}{.45\textwidth}
+        \includegraphics[width=\textwidth]{simplified_uml.pdf}
+      \end{column}
     \end{columns}
 \end{frame}
 
@@ -160,10 +161,8 @@
     \vspace{-.5em}
     \begin{lstlisting}
 invariant emails != keys && emails != codes && emails != unconfirmedKeys;
-invariant emails != requestType;
-invariant keys != codes && keys != unconfirmedKeys;
-invariant keys != requestType;
-invariant codes != unconfirmedKeys && codes != requestType;
+invariant emails != requestType && keys != codes && keys != unconfirmedKeys;
+invariant keys != requestType && codes != unconfirmedKeys && codes != requestType;
 invariant unconfirmedKeys != requestType;\end{lstlisting}
   \end{block}
   \vspace{-1em}
@@ -200,16 +199,16 @@ invariant (\forall int i,j ;
 
 
 \begin{frame}[fragile]
-    \frametitle{Array Model: Method Contract}
+    \frametitle{Array Model: Informal Method Contract}
     \begin{block}{Informal Contract: \texttt{addRequest(Email, PublicKey)}}
       Stores request to add the given key for the specified user. The key still
       needs to be confirmed with \texttt{\#addConfirm(Email, Token)}. Does nothing if
       the specified user does not exist.
      
     \begin{itemize}
-    \item \texttt{id} the email of the user
-     \item \texttt{pkey}  -- public key to added after confirmation
-     \item \textbf{returns} the array index where the key will be stored
+      \item \texttt{id} -- email of the user
+      \item \texttt{pkey} -- public key to added after confirmation
+      \item \textbf{returns} the array index where the data is stored
     \end{itemize}
      
     \end{block}
@@ -230,9 +229,9 @@ public int addRequest(int id, int pkey) {
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Array model: \texttt{addRequest}}
+    \frametitle{Array model: Formal Method Contract}
     \vspace{-1em}
-    \begin{exampleblock}{Formal contract:}
+    \begin{exampleblock}{}
     \vspace{-.5em}
 \begin{lstlisting}
 /*@ public normal_behaviour
@@ -245,9 +244,7 @@ public int addRequest(int id, int pkey) {
         ||  count == \old(count) + 1 && \result == count - 1;
 
   @ ensures emails[\result] == id && unconfirmedKeys[\result] == pkey
-            && codes[\result]>0;
-
-  @ ensures requestType[\result] == REQUESTTYPE_ADD;
+    &&  codes[\result] > 0 && requestType[\result] == REQUEST_TYPE_ADD;
 
   @ ensures (\forall int i; 0<=i && i<count;
              (emails[i] == (i == \result ? id : \old(emails[i])))
