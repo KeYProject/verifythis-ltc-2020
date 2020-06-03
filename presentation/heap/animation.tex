@@ -1,0 +1,10 @@
+% Animation!
+\newcommand{\heapAnimation}[1][]{\begin{tikzpicture}%
+\only<1->{\node {\includegraphics[#1]{.//heap/layer1}};}%
+\only<2->{\node {\includegraphics[#1]{.//heap/layer2}};}%
+\only<3->{\node {\includegraphics[#1]{.//heap/layer3}};}%
+\only<4->{\node {\includegraphics[#1]{.//heap/layer4}};}%
+\only<5>{\node {\includegraphics[#1]{.//heap/layer5}};}%
+\only<6>{\node {\includegraphics[#1]{.//heap/layer6}};}%
+\only<7->{\node {\includegraphics[#1]{.//heap/layer7}};}%
+\end{tikzpicture}}

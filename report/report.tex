@@ -1,12 +1,23 @@
 \documentclass{llncs}
 
+
+\usepackage{hyperref}
+\usepackage{url}
 \usepackage{microtype}
 \usepackage{xspace}
 \usepackage{booktabs}
 \usepackage{todonotes}
 \usepackage{wrapfig}
-\usepackage[backend=biber]{biblatex}
-\newcommand{\KeY}{Ke\kern-1ptY\xspace}
+\usepackage{adjustbox,array}
+% \usepackage[backend=biber]{biblatex}
+\newcommand{\KeY}{Ke\kern-.1emY\xspace}
+
+\newcolumntype{R}[2]{%
+    >{\adjustbox{angle=#1,lap=\width-(#2)}\bgroup}%
+    l%
+    <{\egroup}%
+}
+\newcommand*\rot{\multicolumn{1}{R{30}{1em}}}% no optional argument here, please!
 
 \title{The \KeY Approach on Hagrid
   \\{\small VerifyThis Long-Term Challenge 2020 }}
@@ -18,38 +29,64 @@
 
 \section{Introduction}
 
-In this report we present the applied \KeY approach on the VerifyThis Long Term
-challenge 2020. Subject of the challenge was the HAGRID key server, a new
-implementation of the PGP server to make the key server conform to
-GDPR and resilient against DoS attacks.
+We present the results of the application of the \KeY verification
+approach to the VerifyThis Long Term Challenge 2020. 
 
 % 1. Motivation
 % 2. VerifyThis Challenge LTC
 % 3. Verification target
 
+% \subsection{Introduction of the \KeY tool}
 
-\subsection{Introduction of the \KeY tool}
-
-In its over 20 years of history, the \KeY-tool~\cite{KeyBook2} brings deductive
-verification to Java Programs with support for fully Java 1.4 and JavaCard
-\todo{version number} standard.
+\KeY~\cite{KeYBook2} is a deductive program verification engine to
+show the conformance of Java Programs to their specification in the
+Java Modeling Language (JML). It supports sequential Java 1.4 and the
+full JavaCard~3.0 standard.
 %
-The calculi behind \KeY is based on the sequent calculi, and provides a sound
-and (relative) complete reasoning on Java programs. This reasoning requires that
-user-defined formal specification written in Java Modeling Language~\cite{Jml}.
+The deductive engine of \KeY is based on a sequent calculus for a
+dynamic logic for Java and supports both interactive and automatised
+verification.
+% and provides a sound and (relative) complete reasoning
+% on Java programs. This reasoning requires that user-defined formal
+% specification written in Java Modeling Language~\cite{Jml}.
 
 
 \section{Verification of the Subject}
+The verification target of the challenge is the HAGRID key server, a
+new implementation of the PGP key server written in Rust that makes
+the key server conform to data protection regulations and increases
+resilience against denial of service attacks.
+
+Since \KeY operates on programs written in Java, it cannot directly be
+used to verify HAGRID's Rust source code. Hence, a simplified
+re-implementation of the of the core functionality of the HAGRID key
+server in Java had to be written.
 %
-\KeY supports Java and is not applicable on Rust source code; so
-re-implementation of HAGRID in Java was required. In summary we created two
-different Java implementation: The first version uses only primitive data types
-and arrays. In the second version, we modularize the first version to use a map
-implementation. Both version are an abstraction of HAGRID as we focus on the
-database logic. In the implementation, we avoid the use of objects: The e-mail
-addresses and the keys are represented by integers. This also excludes the
-parsing of PGP keys and also excludes the handling of HTTP protocol.
-\todo{iterative approach}
+We came up with two different Java implementations of different
+complexity.
+%
+Both adhere to the natural language specifications in~\cite{ltcDescr}
+%
+The first version implements a single class that only
+makes use of primitive data types and arrays. The second version
+modularizes the first version and uses an implementation of a map data
+structure. Both versions are abstractions of HAGRID's implementation
+and actual behaviour. We focus on the database logic and leave network
+connection, and en- and de-coding of HTTP messages aside for this
+project. %\todo{iterative approach. MU: I did not understand that.}
+%
+Moreover, in the implementation, we assume that e-mail addresses and
+keys are ``atomic'' in the sense that they are used as keys and values
+in the database, but are never analysed for their contents. In
+particular, we avoid the use of objects for the data and represent
+them by primitive integer values.
+%
+This is of course a severe simplification, but since strings are
+objects in the Java programming language, they produce significantly
+more difficult verification conditions due to additional heap framing
+conditions which need to be shown.
+
+We were able to specify and verify both implementations successfully.
 
 \paragraph{A simple email-key map.}
 %
@@ -66,24 +103,25 @@ These arrays store:
 The maximum number of users is fixed to 1024, as the arrays are never resized.
 The implementation only allows to confirm last requested action, e.g. if a
 deletion is requested, a pending addition is abandoned.
-
+%
 We avoid the use of any objects to avoid dealing with a changes of the heap,
-resulting in a version that is verifiable without interactions in KeY. The
+resulting in a version that is verifiable without interactions in KeY. 
 Table~\ref{fig:numbers} shows the aggregated metrics of the proofs.
 
-\begin{figure}[t]
+\begin{table}[t]
+  \caption{Verification in numbers of lines of code, lines of specification,
+    applied rules, interactions, and proof obligations.}
   \centering
-  \begin{tabular}{ lrrrr }
-    Version    & \#Code & \#Specs & \#Applied Rules &\#Proof Obl. \\
+  \begin{tabular}{l@{\quad}r@{\quad}r@{\quad}r@{\quad}r@{\quad}r}
+    Version    & \rot{lines of code} & \rot{lines of spec} &
+     \rot{rule applications} & \rot{interactive rule appl.} &\rot{proof obligations} \\
     \toprule
-    Plain & 69 & 82 & 30.119 & 10 \\
-    Map-based & 146 & 262 & 77.663  & 40 \\
+    Plain & 69 & 82 & 30.119 & 0 & 10 \\
+    Map-based & 146 & 262 & 77.663  & 89 & 40 \\
     \bottomrule
   \end{tabular}
-  \caption{Verification in numbers of lines of code, lines of specification,
-    applied rules, and proof obligations.}
   \label{fig:numbers}
-\end{figure}
+\end{table}
 % proof stats:
 % addConfirm: 2665+2549
 % addRequest: 5710
@@ -97,50 +135,56 @@ Table~\ref{fig:numbers} shows the aggregated metrics of the proofs.
 %77663
 
 
-We also attempted to add a `timeout' mechanism, to cover the following aspect of
+We also attempted to add a `time-out' mechanism, to cover the following aspect of
 the challenge:
 \begin{quote}
-  If the provided code \emph{is one recently issued} then the corresponding
-  operation (addition/removal) is finalised
+  If the provided code \emph{is one recently issued}, then the corresponding
+  operation (addition/removal) is finalised.
 \end{quote}
-This is easy to add in the implementation: first store the time that the user
-requests the operation (in an additional array), and when confirming, only
-approve the operation if that time was sufficiently recent. But it is
-problematic for specification and verification: the timelimit may not yet have
-elapsed in the precondition (i.e. the specification), but it may have when the
-JVM determines the current time in the \verb|confirm| method body. So we dropped
-the timeout aspect.
+This is easy to add in the implementation: first store the time that
+the user requests the operation (in an additional array), and when
+confirming, only approve the operation if that time was sufficiently
+recent. But it is problematic for specification and verification: the
+time limit may not yet have elapsed when the precondition (i.e. the
+specification) is evaluated, but it may have when the JVM determines
+the current time in the \verb|confirm| method body. So we dropped the
+time-out aspect.
 
 \paragraph{The map-based approach.}
 
-\begin{wrapfigure}[16]{R}{.5\textwidth}
+\begin{figure}%[16]{R}{.5\textwidth}
   \centering
   \includegraphics[width=.5\textwidth]{uml}
   \caption{UML class diagram of the Map version}
   \label{fig:umlclassdiagram}
-\end{wrapfigure}
+\end{figure}
 %
-The second version builds upon the generalization of the previous map structure,
-that are part of the first version.
+The second version follows the same design principles as the first
+one, but aims to achieve a more object-oriented, modular
+architecture.  To this end, the key server now contains four map data
+structures for the stored keys, pending additions and pending
+deletions.
 
-\texttt{KIMap} (Key Integer Map) is an interface representing a map of int to
-int. Its functionality is bound (by JML contracts) to the behavior of an
-abstract map data type in theories of KeY. \texttt{KIMapImpl} is a simple
-implementation based upon two int-arrays, one for the key, the other the values.
+Fig.~\ref{fig:umlclassdiagram} gives an overview of the class layout.
 %
-\texttt{KeyServer} is a version of the backend of the verifying key server using
-integers as e-mail addresses and keys providing the functionality to get, add,
-delete keys, and to confirm manipulative operations.
+The interface \texttt{KIMap} (Key Integer Map) represents a map of
+from \texttt{int} to \texttt{int}. Its functionality is specified (by
+JML contracts) using the abstract map theory built into
+\KeY. \texttt{KIMapImpl} is a simple implementation based upon two
+\emph{int}-arrays (one for the keys and one for the values).
 %
-In contrast to the first version, an operation on an entry is not superseded by
-a new manipulation request. The last confirmed operation wins. Also, a previous
-requested deletion for an email-key pair $(e,k)$ can be used delete a different
-pair $(e,k')$ if there was a confirmed update for the key $k$ in between the
-deletion request and its confirmation.
+\texttt{KeyServer} is the verifying key server
+% using integers as e-mail addresses and keys
+providing the functionality to answer queries for keys, to process
+requests for key addition and deletion and to perform these
+mutation operations upon confirmation. It is specified using a
+number of model fields containing (finite) logical maps.
 %
-Fig.~\ref{fig:umlclassdiagram} shows the classes.
-
-\todo{Ownership approach?}
+% In contrast to the first version, an operation on an entry is not superseded by
+% a new manipulation request. The last confirmed operation wins. Also, a previous
+% requested deletion for an email-key pair $(e,k)$ can be used delete a different
+% pair $(e,k')$ if there was a confirmed update for the key $k$ in between the
+% deletion request and its confirmation.
 
 \iffalse
 @startuml
@@ -181,26 +225,38 @@ class KIMapImpl implements KIMap {
 @enduml
 \fi
 
-\subsection*{Proofed Properties}
+\section{Verification Results}
 
-We verified the software on a method-by-method.
-%
-This includes
-%
-This exclude the effect of multiple chained operations.
+We were able to verify strong functional method contracts for all
+methods of the implementations. This includes verifying that requested
+operations are confirmed by the right confirmation code,
+absence of runtime
+exceptions and a guaranteed termination of each request handler.
 
-\section{Conclusion }
+% We verified the software on a method-by-method.
+% %
+% This includes
+% %
+% This exclude the effect of multiple chained operations. \todo{MU: DId not understand}
 
-We verified abstraction of the key server based on integer.
+We noticed during the verification of the modular map approach that
+discharging the framing conditions brought the \KeY on the edge of its
+capabilities. In the following, we devised a new technique to deal
+with framing conditions that combines dynamic frames with aspects from
+ownership. This allowed us to close all proofs successfully.
+
+
+Both implementations used integers instead of Strings as an
+simplifying abstraction.
 %
-A next goal would be the verification of an implementation which uses String
-values for the email and key. This also requires a new theory for strings and
-maps in \KeY.
+The obvious next goal is the verification of an implementation which
+uses \texttt{String} values for e-mails and keys.
 %
 %During the verification with \KeY we found some deficiencies in \KeY.
 %
 
-
+\bibliographystyle{plain}
+\bibliography{report}
 
 
 \end{document}

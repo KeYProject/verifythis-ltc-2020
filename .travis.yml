@@ -7,7 +7,6 @@ install:
 script:
   - javac simplified/Keyserver.java
   - javac -sourcepath imap_classpath imap/*.java
-  - javac smap/*.java
   - java -jar ci-tool.jar simplified/Keyserver.java
   - cd imap ; java -jar ../ci-tool.jar @.ci-args.txt 
   - cd smap ; java -jar ../ci-tool.jar @.ci-args.txt   
